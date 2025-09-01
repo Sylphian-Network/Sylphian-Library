@@ -217,6 +217,23 @@ class LogRepository extends Repository
 			->total();
 	}
 
+    /**
+     * Check if there are any error logs in the system
+     *
+     * @return bool
+     */
+    public function hasErrorLogs(): bool
+    {
+        $hasErrors = $this->db()->fetchOne('
+        SELECT log_id
+        FROM xf_addon_log
+        WHERE type = ?
+        LIMIT 1
+    ', 'error');
+
+        return (bool) $hasErrors;
+    }
+
 	/**
 	 * Get all unique addons with their log counts
 	 *
