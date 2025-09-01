@@ -217,22 +217,22 @@ class LogRepository extends Repository
 			->total();
 	}
 
-    /**
-     * Check if there are any error logs in the system
-     *
-     * @return bool
-     */
-    public function hasErrorLogs(): bool
-    {
-        $hasErrors = $this->db()->fetchOne('
+	/**
+	 * Check if there are any error logs in the system
+	 *
+	 * @return bool
+	 */
+	public function hasErrorLogs(): bool
+	{
+		$hasErrors = $this->db()->fetchOne('
         SELECT log_id
         FROM xf_addon_log
         WHERE type = ?
         LIMIT 1
     ', 'error');
 
-        return (bool) $hasErrors;
-    }
+		return (bool) $hasErrors;
+	}
 
 	/**
 	 * Get all unique addons with their log counts
@@ -244,7 +244,13 @@ class LogRepository extends Repository
 		$db = $this->db();
 
 		$addonCounts = $db->fetchAllKeyed(
-			"SELECT addon_id, COUNT(*) AS log_count 
+			"SELECT 
+            addon_id, 
+            COUNT(*) AS log_count,
+            SUM(IF(type = 'info', 1, 0)) AS info_count,
+            SUM(IF(type = 'warning', 1, 0)) AS warning_count,
+            SUM(IF(type = 'error', 1, 0)) AS error_count,
+            SUM(IF(type = 'debug', 1, 0)) AS debug_count
          FROM xf_addon_log 
          GROUP BY addon_id
          ORDER BY log_count DESC",
@@ -265,6 +271,12 @@ class LogRepository extends Repository
 				$result[$addonId] = [
 					'addon' => $addons[$addonId],
 					'log_count' => $addonCounts[$addonId]['log_count'],
+					'type_counts' => [
+						'info' => $addonCounts[$addonId]['info_count'],
+						'warning' => $addonCounts[$addonId]['warning_count'],
+						'error' => $addonCounts[$addonId]['error_count'],
+						'debug' => $addonCounts[$addonId]['debug_count'],
+					],
 				];
 			}
 			else
@@ -273,6 +285,12 @@ class LogRepository extends Repository
 					'addon_id' => $addonId,
 					'addon' => null,
 					'log_count' => $addonCounts[$addonId]['log_count'],
+					'type_counts' => [
+						'info' => $addonCounts[$addonId]['info_count'],
+						'warning' => $addonCounts[$addonId]['warning_count'],
+						'error' => $addonCounts[$addonId]['error_count'],
+						'debug' => $addonCounts[$addonId]['debug_count'],
+					],
 				];
 			}
 		}

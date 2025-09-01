@@ -1,8 +1,8 @@
 {
     "admin/addon_cards.less": {
-        "version_id": 1000010,
-        "version_string": "1.0.0 Alpha",
-        "hash": "d14f367aa80f099c7ba0f290a37b11a6"
+        "version_id": 1000110,
+        "version_string": "1.0.1 Alpha",
+        "hash": "f086b75f66dab9f063b9cec2d9319f68"
     },
     "admin/sylphian_addon_logs.html": {
         "version_id": 1000010,
@@ -10,9 +10,9 @@
         "hash": "4b8f3b52dda3f97b252150d43d73600f"
     },
     "admin/sylphian_library_addon_cards.html": {
-        "version_id": 1000010,
-        "version_string": "1.0.0 Alpha",
-        "hash": "b6ac28eec0dbd7a0a24ea82b6da9d240"
+        "version_id": 1000110,
+        "version_string": "1.0.1 Alpha",
+        "hash": "d1a6d109ea522616a169b2272524fce1"
     },
     "admin/sylphian_library_log_delete.html": {
         "version_id": 1000010,

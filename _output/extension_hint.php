@@ -10,5 +10,9 @@
 
 namespace Sylphian\Library\XF\Admin\Controller
 {
-	class XFCP_IndexController extends \XF\Admin\Controller\IndexController {}
+	use XF\Admin\Controller\IndexController;
+
+	class XFCP_IndexController extends IndexController
+	{
+	}
 }
