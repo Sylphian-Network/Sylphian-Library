@@ -38,14 +38,14 @@ class LogRepository extends Repository
 
 			if ($addonId === null)
 			{
-				$addonId = 'Unknown';
+				$addonId = 'XF';
 			}
 		}
 
 		$addon = $this->em->find('XF:AddOn', $addonId);
-		if (!$addon && $addonId !== 'Unknown')
+		if (!$addon && $addonId !== 'XF')
 		{
-			$addonId = 'Unknown';
+			$addonId = 'XF';
 		}
 
 		/** @var AddonLog $log */
@@ -65,9 +65,9 @@ class LogRepository extends Repository
 		{
 			\XF::logError('Error saving addon log: ' . implode(', ', $e->getMessages()));
 
-			if ($addonId !== 'Unknown')
+			if ($addonId !== 'XF')
 			{
-				return $this->log($type, $message, [], 'Unknown');
+				return $this->log($type, $message, $details, 'XF');
 			}
 		}
 		catch (\Exception $e)

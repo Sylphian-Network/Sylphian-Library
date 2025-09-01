@@ -1,20 +1,20 @@
 # Sylphian-Library
 
-Sylphian Library is a utility addon for XenForo that provides centralized logging functionality for other addons. It allows developers to create, store, and manage logs from their addons with different severity levels and additional context information.
+Sylphian Library is a utility add-on for XenForo that provides centralised logging functionality for other add-ons. It allows developers to create, store, and manage logs from their add-ons with different severity levels and additional contextual information.
 
 ### Features
 
-- Standardized logging interface for XenForo addons
+- Standardised logging interface for XenForo add-ons
 - Support for multiple log types: INFO, WARNING, ERROR, and DEBUG
-- Ability to store additional context data with each log entry
+- Ability to store additional contextual data with each log entry
 - Admin interface for viewing and managing logs
-- Automatic addon identification
+- Automatic add-on identification
 
 ## Usage
 
 ### Basic Logging
 
-To use Sylphian Library for logging in your addon, first import the required classes:
+To use Sylphian Library for logging in your add-on, first import the required classes:
 
 ```php
 use Sylphian\Library\LogType;
@@ -60,7 +60,7 @@ $logRepo->log(LogType::INFO, 'This is an informational message', null);
 
 ### Adding Context Data
 
-You can add additional context data to your logs by passing an array as the second parameter:
+You can add additional data to your logs by passing an array as the second parameter:
 
 ```php
 $logRepo->logInfo(
@@ -75,7 +75,7 @@ $logRepo->logInfo(
 
 ### Specifying Addon ID
 
-By default, the library will automatically determine which addon is creating the log. However, you can manually specify the addon ID if needed:
+By default, the library will automatically determine which add-on is creating the log. However, you can manually specify the add-on ID if needed:
 
 ```php
 $logRepo->logError(
@@ -85,4 +85,4 @@ $logRepo->logError(
 );
 ```
 
-**Note:** When manually specifying an addon ID, it must be a valid addon ID that exists in the XenForo database's `xf_addon` table. If the specified addon ID doesn't exist in the system, the log will either be created with an "Unknown" addon ID or an error will be thrown during the save process.
+Note: When manually specifying an add-on ID, it must be a valid add-on ID that exists in the XenForo database’s xf_addon table. If the specified add-on ID does not exist in the system, the log will either be created with an “XF” add-on ID or an error will be thrown during the save process.
