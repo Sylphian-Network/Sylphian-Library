@@ -17,6 +17,12 @@
         "version_string": "1.0.0 Alpha",
         "hash": "1bf36fcda3904ddd1e6356015badee4f"
     },
+    "available_addon_logs.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "97fba50d456a74cc8d4d6a6fb049d362"
+    },
     "back_to_addons.txt": {
         "global_cache": false,
         "version_id": 1000010,
@@ -40,6 +46,12 @@
         "version_id": 1000010,
         "version_string": "1.0.0 Alpha",
         "hash": "d1582f4ad6cab68fdcc39419f753041b"
+    },
+    "log_entries.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "2426f66c878e987e16967d8720572173"
     },
     "logs_for_addon.txt": {
         "global_cache": false,

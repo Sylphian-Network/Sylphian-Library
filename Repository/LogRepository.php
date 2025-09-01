@@ -14,10 +14,11 @@ class LogRepository extends Repository
 	 *
 	 * @param LogType $type The type of log entry
 	 * @param string $message The log message
+	 * @param array|null $details For extra details
 	 * @param string|null $addonId The addon ID (defaults to the calling addon)
 	 * @return AddonLog
 	 */
-	public function log(LogType $type, string $message, ?string $addonId = null): AddonLog
+	public function log(LogType $type, string $message, ?array $details = null, ?string $addonId = null): AddonLog
 	{
 		if ($addonId === null)
 		{
@@ -54,6 +55,7 @@ class LogRepository extends Repository
 		$log->content = $message;
 		$log->date = \XF::$time;
 		$log->user_id = \XF::visitor()->user_id ?: null;
+		$log->details = $details;
 
 		try
 		{
@@ -65,7 +67,7 @@ class LogRepository extends Repository
 
 			if ($addonId !== 'Unknown')
 			{
-				return $this->log($type, $message, 'Unknown');
+				return $this->log($type, $message, [], 'Unknown');
 			}
 		}
 		catch (\Exception $e)
@@ -80,48 +82,52 @@ class LogRepository extends Repository
 	 * Log an info message
 	 *
 	 * @param string $message The log message
+	 * @param array|null $details For extra details
 	 * @param string|null $addonId The addon ID (defaults to the calling addon)
 	 * @return AddonLog
 	 */
-	public function logInfo(string $message, ?string $addonId = null): AddonLog
+	public function logInfo(string $message, ?array $details = null, ?string $addonId = null): AddonLog
 	{
-		return $this->log(LogType::INFO, $message, $addonId);
+		return $this->log(LogType::INFO, $message, $details, $addonId);
 	}
 
 	/**
 	 * Log a warning message
 	 *
 	 * @param string $message The log message
+	 * @param array|null $details For extra details
 	 * @param string|null $addonId The addon ID (defaults to the calling addon)
 	 * @return AddonLog
 	 */
-	public function logWarning(string $message, ?string $addonId = null): AddonLog
+	public function logWarning(string $message, ?array $details = null, ?string $addonId = null): AddonLog
 	{
-		return $this->log(LogType::WARNING, $message, $addonId);
+		return $this->log(LogType::WARNING, $message, $details, $addonId);
 	}
 
 	/**
 	 * Log an error message
 	 *
 	 * @param string $message The log message
+	 * @param array|null $details For extra details
 	 * @param string|null $addonId The addon ID (defaults to the calling addon)
 	 * @return AddonLog
 	 */
-	public function logError(string $message, ?string $addonId = null): AddonLog
+	public function logError(string $message, ?array $details = null, ?string $addonId = null): AddonLog
 	{
-		return $this->log(LogType::ERROR, $message, $addonId);
+		return $this->log(LogType::ERROR, $message, $details, $addonId);
 	}
 
 	/**
 	 * Log a debug message
 	 *
 	 * @param string $message The log message
+	 * @param array|null $details For extra details
 	 * @param string|null $addonId The addon ID (defaults to the calling addon)
 	 * @return AddonLog
 	 */
-	public function logDebug(string $message, ?string $addonId = null): AddonLog
+	public function logDebug(string $message, ?array $details = null, ?string $addonId = null): AddonLog
 	{
-		return $this->log(LogType::DEBUG, $message, $addonId);
+		return $this->log(LogType::DEBUG, $message, $details, $addonId);
 	}
 
 	/**
