@@ -19,6 +19,13 @@
                             {{ phrase('version') }}: {{ $addonInfo.addon.version_string }}
                         </xf:if>
                     </div>
+					
+					<div class="addon-card-last-activity">
+    					<xf:if is="$addonInfo.latest_log_date">
+							{{ phrase('last_activity') }}: {{ date_time($addonInfo.latest_log_date) }}
+						</xf:if>
+					</div>
+					
 					<div class="addon-card-logs">
 						<div class="addon-card-log-total">
 							{{ phrase('log_entries') }}: {{ $addonInfo.log_count }}

@@ -245,15 +245,16 @@ class LogRepository extends Repository
 
 		$addonCounts = $db->fetchAllKeyed(
 			"SELECT 
-            addon_id, 
-            COUNT(*) AS log_count,
-            SUM(IF(type = 'info', 1, 0)) AS info_count,
-            SUM(IF(type = 'warning', 1, 0)) AS warning_count,
-            SUM(IF(type = 'error', 1, 0)) AS error_count,
-            SUM(IF(type = 'debug', 1, 0)) AS debug_count
-         FROM xf_addon_log 
-         GROUP BY addon_id
-         ORDER BY log_count DESC",
+        addon_id, 
+        COUNT(*) AS log_count,
+        SUM(IF(type = 'info', 1, 0)) AS info_count,
+        SUM(IF(type = 'warning', 1, 0)) AS warning_count,
+        SUM(IF(type = 'error', 1, 0)) AS error_count,
+        SUM(IF(type = 'debug', 1, 0)) AS debug_count,
+        MAX(date) AS latest_log_date
+     FROM xf_addon_log 
+     GROUP BY addon_id
+     ORDER BY log_count DESC",
 			'addon_id'
 		);
 
@@ -271,6 +272,7 @@ class LogRepository extends Repository
 				$result[$addonId] = [
 					'addon' => $addons[$addonId],
 					'log_count' => $addonCounts[$addonId]['log_count'],
+					'latest_log_date' => $addonCounts[$addonId]['latest_log_date'],
 					'type_counts' => [
 						'info' => $addonCounts[$addonId]['info_count'],
 						'warning' => $addonCounts[$addonId]['warning_count'],
@@ -285,6 +287,7 @@ class LogRepository extends Repository
 					'addon_id' => $addonId,
 					'addon' => null,
 					'log_count' => $addonCounts[$addonId]['log_count'],
+					'latest_log_date' => $addonCounts[$addonId]['latest_log_date'],
 					'type_counts' => [
 						'info' => $addonCounts[$addonId]['info_count'],
 						'warning' => $addonCounts[$addonId]['warning_count'],
