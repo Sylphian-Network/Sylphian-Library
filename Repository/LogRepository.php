@@ -1,0 +1,259 @@
+<?php
+
+namespace Sylphian\Library\Repository;
+
+use Sylphian\Library\Entity\AddonLog;
+use Sylphian\Library\LogType;
+use XF\Mvc\Entity\Repository;
+use XF\PrintableException;
+
+class LogRepository extends Repository
+{
+	/**
+	 * Generic log method that can be used with any log type
+	 *
+	 * @param LogType $type The type of log entry
+	 * @param string $message The log message
+	 * @param string|null $addonId The addon ID (defaults to the calling addon)
+	 * @return AddonLog
+	 */
+	public function log(LogType $type, string $message, ?string $addonId = null): AddonLog
+	{
+		if ($addonId === null)
+		{
+			$backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 3);
+			$calledThroughHelper = false;
+
+			if (isset($backtrace[1]['class']) && $backtrace[1]['class'] === self::class)
+			{
+				$helperMethods = ['logInfo', 'logWarning', 'logError', 'logDebug'];
+				if (isset($backtrace[1]['function']) && in_array($backtrace[1]['function'], $helperMethods))
+				{
+					$calledThroughHelper = true;
+				}
+			}
+
+			$addonId = $this->determineAddonId($calledThroughHelper ? 2 : 1);
+
+			if ($addonId === null)
+			{
+				$addonId = 'Unknown';
+			}
+		}
+
+		$addon = $this->em->find('XF:AddOn', $addonId);
+		if (!$addon && $addonId !== 'Unknown')
+		{
+			$addonId = 'Unknown';
+		}
+
+		/** @var AddonLog $log */
+		$log = $this->em->create('Sylphian\Library:AddonLog');
+		$log->addon_id = $addonId;
+		$log->type = $type->value;
+		$log->content = $message;
+		$log->date = \XF::$time;
+		$log->user_id = \XF::visitor()->user_id ?: null;
+
+		try
+		{
+			$log->save();
+		}
+		catch (PrintableException $e)
+		{
+			\XF::logError('Error saving addon log: ' . implode(', ', $e->getMessages()));
+
+			if ($addonId !== 'Unknown')
+			{
+				return $this->log($type, $message, 'Unknown');
+			}
+		}
+		catch (\Exception $e)
+		{
+			\XF::logException($e, false, 'Error saving addon log: ');
+		}
+
+		return $log;
+	}
+
+	/**
+	 * Log an info message
+	 *
+	 * @param string $message The log message
+	 * @param string|null $addonId The addon ID (defaults to the calling addon)
+	 * @return AddonLog
+	 */
+	public function logInfo(string $message, ?string $addonId = null): AddonLog
+	{
+		return $this->log(LogType::INFO, $message, $addonId);
+	}
+
+	/**
+	 * Log a warning message
+	 *
+	 * @param string $message The log message
+	 * @param string|null $addonId The addon ID (defaults to the calling addon)
+	 * @return AddonLog
+	 */
+	public function logWarning(string $message, ?string $addonId = null): AddonLog
+	{
+		return $this->log(LogType::WARNING, $message, $addonId);
+	}
+
+	/**
+	 * Log an error message
+	 *
+	 * @param string $message The log message
+	 * @param string|null $addonId The addon ID (defaults to the calling addon)
+	 * @return AddonLog
+	 */
+	public function logError(string $message, ?string $addonId = null): AddonLog
+	{
+		return $this->log(LogType::ERROR, $message, $addonId);
+	}
+
+	/**
+	 * Log a debug message
+	 *
+	 * @param string $message The log message
+	 * @param string|null $addonId The addon ID (defaults to the calling addon)
+	 * @return AddonLog
+	 */
+	public function logDebug(string $message, ?string $addonId = null): AddonLog
+	{
+		return $this->log(LogType::DEBUG, $message, $addonId);
+	}
+
+	/**
+	 * Determine the addon ID from the call stack
+	 *
+	 * If logs are created in the library, the addon id will need to be manually specified.
+	 *
+	 * @param int $depth The backtrace depth to check
+	 * @return string|null The determined addon ID or null if couldn't determine
+	 */
+	private function determineAddonId(int $depth = 2): ?string
+	{
+		$backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 10);
+
+		$index = $depth;
+
+		while (isset($backtrace[$index]))
+		{
+			$caller = $backtrace[$index];
+
+			if (isset($caller['class']))
+			{
+				$classParts = explode('\\', $caller['class']);
+
+				if (count($classParts) >= 2)
+				{
+					if ($classParts[0] === 'Sylphian' && $classParts[1] === 'Library')
+					{
+						$index++;
+						continue;
+					}
+
+					return $classParts[0] . '/' . $classParts[1];
+				}
+			}
+
+			$index++;
+		}
+
+		return null;
+	}
+
+	/**
+	 * Get logs for a specific addon
+	 *
+	 * @param string $addonId The addon ID
+	 * @param int|null $page
+	 * @param int|null $perPage
+	 * @return array
+	 */
+	public function getLogsForAddon(string $addonId, ?int $page = 1, ?int $perPage = 20): array
+	{
+		$finder = $this->finder('Sylphian\Library:AddonLog')
+			->where('addon_id', $addonId)
+			->order('date', 'DESC');
+
+		return $finder->limitByPage($page, $perPage)->fetch()->toArray();
+	}
+
+	/**
+	 * Get logs of a specific type
+	 *
+	 * @param LogType $type The type of logs to retrieve
+	 * @param int|null $page
+	 * @param int|null $perPage
+	 * @return array
+	 */
+	public function getLogsByType(LogType $type, ?int $page = 1, ?int $perPage = 20): array
+	{
+		$finder = $this->finder('Sylphian\Library:AddonLog')
+			->where('type', $type->value)
+			->order('date', 'DESC');
+
+		return $finder->limitByPage($page, $perPage)->fetch()->toArray();
+	}
+
+	/**
+	 * Get the total count of logs for an addon
+	 *
+	 * @param string $addonId The addon ID
+	 * @return int
+	 */
+	public function getLogCountForAddon(string $addonId): int
+	{
+		return $this->finder('Sylphian\Library:AddonLog')
+			->where('addon_id', $addonId)
+			->total();
+	}
+
+	/**
+	 * Get all unique addons with their log counts
+	 *
+	 * @return array An array of addons with their log counts
+	 */
+	public function getUniqueAddonsWithCounts(): array
+	{
+		$db = $this->db();
+
+		$addonCounts = $db->fetchAllKeyed(
+			"SELECT addon_id, COUNT(*) AS log_count 
+         FROM xf_addon_log 
+         GROUP BY addon_id
+         ORDER BY log_count DESC",
+			'addon_id'
+		);
+
+		$addonIds = array_keys($addonCounts);
+		$addons = $this->finder('XF:AddOn')
+			->whereIds($addonIds)
+			->fetch()
+			->toArray();
+
+		$result = [];
+		foreach ($addonIds AS $addonId)
+		{
+			if (isset($addons[$addonId]))
+			{
+				$result[$addonId] = [
+					'addon' => $addons[$addonId],
+					'log_count' => $addonCounts[$addonId]['log_count'],
+				];
+			}
+			else
+			{
+				$result[$addonId] = [
+					'addon_id' => $addonId,
+					'addon' => null,
+					'log_count' => $addonCounts[$addonId]['log_count'],
+				];
+			}
+		}
+
+		return $result;
+	}
+}

@@ -1,0 +1,72 @@
+.addon-card-container {
+    display: flex;
+    flex-wrap: wrap;
+    margin: -15px;
+}
+
+.addon-card {
+    flex: 0 0 calc(33.333% - 30px);
+    margin: 15px;
+    
+    @media (max-width: 900px) {
+        flex: 0 0 calc(50% - 30px);
+    }
+    
+    @media (max-width: 650px) {
+        flex: 0 0 calc(100% - 30px);
+    }
+}
+
+.addon-card-link {
+    display: block;
+    border: 1px solid @xf-borderColor;
+    border-radius: @xf-borderRadiusMedium;
+    padding: 15px;
+    height: 100%;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    background-color: @xf-contentBg;
+    
+    &:hover {
+        border-color: @xf-borderColorFeature;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        text-decoration: none;
+        background-color: @xf-contentAltBg;
+    }
+}
+
+.addon-card-header {
+    margin-bottom: 10px;
+    border-bottom: 1px solid @xf-borderColorLight;
+    padding-bottom: 10px;
+}
+
+.addon-card-title {
+    margin: 0;
+    font-size: @xf-fontSizeLarge;
+    color: @xf-linkColor;
+}
+
+.addon-card-body {
+    color: @xf-textColorMuted;
+    font-size: @xf-fontSizeSmaller;
+}
+
+.addon-card-version, .addon-card-logs {
+    margin-bottom: 5px;
+}
+
+.label--info {
+    background-color: @xf-infoColor;
+}
+
+.label--warning {
+    background-color: @xf-warningColor;
+}
+
+.label--error {
+    background-color: @xf-errorColor;
+}
+
+.label--debug {
+    background-color: @xf-textColorMuted;
+}

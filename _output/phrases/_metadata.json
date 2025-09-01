@@ -1,0 +1,50 @@
+{
+    "addon_id.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "ea98531699c415196c1426a08e032263"
+    },
+    "addon_log_details.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "872b4838703543bb079130c1388e7316"
+    },
+    "admin_navigation.sylphian_addon_logs.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "1bf36fcda3904ddd1e6356015badee4f"
+    },
+    "back_to_addons.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "a5b0cc194de719d7ade6d196b0181d47"
+    },
+    "debug.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "a603905470e2a5b8c13e96b579ef0dba"
+    },
+    "delete_addon_log_warning_text.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "17633eb33ffe2021377f897f0f03d95f"
+    },
+    "delete_addon_log_warning_title.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "d1582f4ad6cab68fdcc39419f753041b"
+    },
+    "logs_for_addon.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "4dec49160316f2770fad73ff55e65cc0"
+    }
+}

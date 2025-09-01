@@ -1,0 +1,31 @@
+<xf:title>{{ phrase('available_addon_logs') }}</xf:title>
+
+<div class="addon-card-container">
+    <xf:foreach loop="$addons" value="$addonInfo">
+        <div class="addon-card">
+            <a href="{{ link('logs/addon_logs/view', null, {'addon_id': $addonInfo.addon.addon_id}) }}" class="addon-card-link">
+                <div class="addon-card-header">
+                    <h3 class="addon-card-title">
+                        <xf:if is="$addonInfo.addon">
+                            {{ $addonInfo.addon.title }}
+                            <xf:else />
+                            {{ $addonInfo.addon_id }}
+                        </xf:if>
+                    </h3>
+                </div>
+                <div class="addon-card-body">
+                    <div class="addon-card-version">
+                        <xf:if is="$addonInfo.addon">
+                            {{ phrase('version') }}: {{ $addonInfo.addon.version_string }}
+                        </xf:if>
+                    </div>
+                    <div class="addon-card-logs">
+                        {{ phrase('log_entries') }}: {{ $addonInfo.log_count }}
+                    </div>
+                </div>
+            </a>
+        </div>
+    </xf:foreach>
+</div>
+
+<xf:css src="addon_cards.less" />

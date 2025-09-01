@@ -1,0 +1,52 @@
+<xf:title>{{ phrase('addon_log_details') }}</xf:title>
+
+<div class="block">
+    <div class="block-container">
+        <div class="block-body">
+            <xf:formrow label="{{ phrase('log_type') }}">
+                <span class="label 
+                {{ $log.type == 'info' ? 'label--primary' :
+                 ($log.type == 'error' ? 'label--error' :
+                  ($log.type == 'warning' ? 'label--orange' :
+                   ($log.type == 'debug' ? 'label--gray' :
+                    'label--info'))) }}">
+                    <xf:fa icon="{{ $log.type == 'info' ? 'fa-info-circle' : ($log.type == 'error' ? 'fa-times' : ($log.type == 'warning' ? 'fa-exclamation-triangle' : 'fa-bug')) }}" />
+                    {{ phrase_dynamic($log.type) }}
+                </span>
+            </xf:formrow>
+
+            <xf:formrow label="{{ phrase('addon_id') }}">
+                {{ $log.addon_id }}
+            </xf:formrow>
+
+            <xf:formrow label="{{ phrase('date') }}">
+                {{ date_time($log.date) }}
+            </xf:formrow>
+
+            <xf:formrow label="{{ phrase('content') }}">
+                {{ $log.content }}
+            </xf:formrow>
+
+            <xf:if is="$log.details">
+                <xf:formrow label="{{ phrase('details') }}">
+                    <xf:textarearow value="{$formattedDetails}" readonly="true" rows="10" rowtype="fullWidth noLabel" />
+                </xf:formrow>
+            </xf:if>
+
+            <xf:formrow label="{{ phrase('generated_by') }}">
+                <div class="contentRow contentRow--alignMiddle">
+                    <div class="contentRow-figure">
+                        <xf:avatar user="$log.User" size="s" defaultname="{{ phrase('unknown_account') }}" />
+                    </div>
+                    <div class="contentRow-main">
+                        <xf:if is="$log.User">
+                            <a href="{{ link('users/edit', $log.User) }}" class="username">{{ $log.User.username }}</a>
+                            <xf:else />
+                            <span class="username">{{ phrase('unknown_account') }}</span>
+                        </xf:if>
+                    </div>
+                </div>
+            </xf:formrow>
+        </div>
+    </div>
+</div>

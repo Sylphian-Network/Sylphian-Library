@@ -1,0 +1,58 @@
+<xf:title>{{ phrase('delete_addon_log_warning_title') }}</xf:title>
+
+<xf:form action="{{ link('logs/addon_logs/delete', null, {'log_id': $log.log_id}) }}" class="block" ajax="true">
+    <div class="block-container">
+        <div class="block-body block-row">
+            
+            <p>
+                {{ phrase('delete_addon_log_warning_text') }}
+            </p>
+            
+            <div class="block-container">
+                <h3 class="block-header">{{ phrase('addon_log_details') }} || {{ $log.log_id }}</h3>
+                <div class="block-body">
+                    <xf:formrow label="{{ phrase('log_type') }}">
+                        {{ $log.type }}
+                    </xf:formrow>
+
+                    <xf:formrow label="{{ phrase('addon_id') }}">
+                        {{ $log.addon_id }}
+                    </xf:formrow>
+
+                    <xf:formrow label="{{ phrase('date') }}">
+                        {{ date_time($log.date) }}
+                    </xf:formrow>
+
+                    <xf:formrow label="{{ phrase('content') }}">
+                        {{ $log.content }}
+                    </xf:formrow>
+                
+                    <xf:if is="$log.details">
+                        <xf:formrow label="{{ phrase('details') }}">
+                            <xf:textarearow value="{$formattedDetails}" readonly="true" rows="10" rowtype="fullWidth noLabel" />
+                        </xf:formrow>
+                    </xf:if>
+                
+                    <xf:formrow label="{{ phrase('generated_by') }}">
+                        <div class="contentRow contentRow--alignMiddle">
+                            <div class="contentRow-figure">
+                                <xf:avatar user="$log.User" size="s" defaultname="{{ phrase('unknown_account') }}" />
+                            </div>
+                            <div class="contentRow-main">
+                                <xf:if is="$log.User">
+                                    <a href="{{ link('users/edit', $log.User) }}" class="username">{{ $log.User.username }}</a>
+                                    <xf:else />
+                                    <span class="username">{{ phrase('unknown_account') }}</span>
+                                </xf:if>
+                            </div>
+                        </div>
+                    </xf:formrow>
+                </div>
+            </div>
+        </div>
+        
+        <xf:submitrow rowtype="simple" 
+                     icon="delete" 
+                     submit="{{ phrase('delete') }}" />
+    </div>
+</xf:form>
