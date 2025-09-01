@@ -1,4 +1,10 @@
 {
+    "addon_errors_have_been_logged.txt": {
+        "global_cache": false,
+        "version_id": 1000110,
+        "version_string": "1.0.1 Alpha",
+        "hash": "b4160ad587782b68be048b9df588b0b7"
+    },
     "addon_id.txt": {
         "global_cache": false,
         "version_id": 1000010,

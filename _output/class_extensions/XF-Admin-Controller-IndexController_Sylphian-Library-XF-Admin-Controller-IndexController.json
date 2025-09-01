@@ -1,0 +1,6 @@
+{
+    "from_class": "XF\\Admin\\Controller\\IndexController",
+    "to_class": "Sylphian\\Library\\XF\\Admin\\Controller\\IndexController",
+    "execute_order": 10,
+    "active": true
+}

@@ -1,0 +1,9 @@
+{
+    "template": "index",
+    "description": "Add notification for addon error logs",
+    "execution_order": 10,
+    "enabled": true,
+    "action": "str_replace",
+    "find": "<xf:if is=\"$serverErrorLogs\">\n\t<div class=\"blockMessage blockMessage--error blockMessage--iconic\">\n\t\t<a href=\"{{ link('logs/server-errors') }}\"> {{ phrase('server_errors_have_been_logged') }}</a>\n\t</div>\n</xf:if>",
+    "replace": "<xf:if is=\"$serverErrorLogs\">\n\t<div class=\"blockMessage blockMessage--error blockMessage--iconic\">\n\t\t<a href=\"{{ link('logs/server-errors') }}\"> {{ phrase('server_errors_have_been_logged') }}</a>\n\t</div>\n</xf:if>\n\n<xf:if is=\"$addonErrorLogs\">\n\t<div class=\"blockMessage blockMessage--error blockMessage--iconic\">\n\t\t<a href=\"{{ link('logs/addon_logs') }}\"> {{ phrase('addon_errors_have_been_logged') }}</a>\n\t</div>\n</xf:if>"
+}
