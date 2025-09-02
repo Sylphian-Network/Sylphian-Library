@@ -35,6 +35,24 @@
         "version_string": "1.0.0 Alpha",
         "hash": "a5b0cc194de719d7ade6d196b0181d47"
     },
+    "clear_addon_logs.txt": {
+        "global_cache": false,
+        "version_id": 1000110,
+        "version_string": "1.0.1 Alpha",
+        "hash": "d70d18bd960e149e91fc77750cdf9d2d"
+    },
+    "clear_all_logs_for_addon_warning.txt": {
+        "global_cache": false,
+        "version_id": 1000110,
+        "version_string": "1.0.1 Alpha",
+        "hash": "e23c60760d480b492a96d8d6c199e784"
+    },
+    "clear_logs.txt": {
+        "global_cache": false,
+        "version_id": 1000110,
+        "version_string": "1.0.1 Alpha",
+        "hash": "ce98e286e5d4b5e3794d676901633de4"
+    },
     "cron_entry.addonLogCleanup.txt": {
         "global_cache": false,
         "version_id": 1000110,

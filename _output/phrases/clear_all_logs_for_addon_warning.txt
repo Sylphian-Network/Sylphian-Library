@@ -1,0 +1,1 @@
+You are about to clear <strong>all</strong> logs for {addon}, are you sure you want to do this? It is permant and logs can not be recovered aftering being deleted.

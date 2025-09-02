@@ -302,6 +302,18 @@ class LogRepository extends Repository
 	}
 
 	/**
+	 * Clear all logs for a specific addon
+	 *
+	 * @param string $addonId The addon ID to clear logs for
+	 * @return int Number of logs deleted
+	 */
+	public function clearLogsForAddon(string $addonId): int
+	{
+		$db = $this->db();
+		return $db->delete('xf_addon_log', 'addon_id = ?', $addonId);
+	}
+
+	/**
 	 * Get the configured log length for addon logs
 	 *
 	 * @return int
