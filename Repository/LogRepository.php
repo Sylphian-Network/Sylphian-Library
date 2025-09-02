@@ -300,4 +300,85 @@ class LogRepository extends Repository
 
 		return $result;
 	}
+
+	/**
+	 * Get the configured log length for addon logs
+	 *
+	 * @return int
+	 */
+	public function getLogLength(): int
+	{
+		return $this->options()->addonLogLength;
+	}
+
+	/**
+	 * Check if addon logging is enabled
+	 *
+	 * @return bool
+	 */
+	public function isEnabled(): bool
+	{
+		return $this->getLogLength() !== 0;
+	}
+
+	/**
+	 * Get the cutoff timestamp for pruning
+	 *
+	 * @return int
+	 */
+	public function getCutOff(): int
+	{
+		return \XF::$time - 86400 * $this->getLogLength();
+	}
+
+	/**
+	 * Prune old add-on logs based on addonLogLength setting
+	 *
+	 * @param int|null $cutOff Optional custom cutoff timestamp
+	 * @return void
+	 */
+	public function pruneLogs(?int $cutOff = null): void
+	{
+		if (!$this->isEnabled())
+		{
+			return;
+		}
+
+		$cutOff = $cutOff ?? $this->getCutOff();
+		$debugEnabled = $this->options()->addonLogCleanupDebug ?? false;
+
+		if ($debugEnabled)
+		{
+			$deletedCount = $this->db()->fetchOne('SELECT COUNT(*) FROM xf_addon_log WHERE date < ?', $cutOff);
+
+			$this->db()->delete('xf_addon_log', 'date < ?', $cutOff);
+
+			if ($deletedCount > 0)
+			{
+				$cutOffDate = date('Y-m-d H:i:s', $cutOff);
+
+				$this->logDebug(
+					'Addon logs pruned successfully',
+					[
+						'deleted_records' => $deletedCount,
+						'cutoff_date' => $cutOffDate,
+						'pruned_date' => date('Y-m-d H:i:s'),
+					],
+					'Sylphian/Library'
+				);
+			}
+			else
+			{
+				$this->logDebug('No addon logs needed pruning', null, 'Sylphian/Library');
+			}
+		}
+		else
+		{
+			$this->db()->delete(
+				'xf_addon_log',
+				'date < ?',
+				$cutOff
+			);
+		}
+	}
 }

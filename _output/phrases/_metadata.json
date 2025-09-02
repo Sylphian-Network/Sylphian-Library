@@ -35,6 +35,12 @@
         "version_string": "1.0.0 Alpha",
         "hash": "a5b0cc194de719d7ade6d196b0181d47"
     },
+    "cron_entry.addonLogCleanup.txt": {
+        "global_cache": false,
+        "version_id": 1000110,
+        "version_string": "1.0.1 Alpha",
+        "hash": "b610fb9aa5bee9843cb1b808e0982501"
+    },
     "debug.txt": {
         "global_cache": false,
         "version_id": 1000010,
@@ -64,5 +70,35 @@
         "version_id": 1000010,
         "version_string": "1.0.0 Alpha",
         "hash": "4dec49160316f2770fad73ff55e65cc0"
+    },
+    "no_logs_for_addon.txt": {
+        "global_cache": false,
+        "version_id": 1000110,
+        "version_string": "1.0.1 Alpha",
+        "hash": "6fd433d5bf31335905a878325d9c54e4"
+    },
+    "option.addonLogCleanupDebug.txt": {
+        "global_cache": false,
+        "version_id": 1000110,
+        "version_string": "1.0.1 Alpha",
+        "hash": "fedb1e41fca6583457535ad8ab32d84b"
+    },
+    "option.addonLogLength.txt": {
+        "global_cache": false,
+        "version_id": 1000110,
+        "version_string": "1.0.1 Alpha",
+        "hash": "d1268171bdad38c51b8cf96f74f52bce"
+    },
+    "option_explain.addonLogCleanupDebug.txt": {
+        "global_cache": false,
+        "version_id": 1000110,
+        "version_string": "1.0.1 Alpha",
+        "hash": "51797a59f524b7040ace874af0728a01"
+    },
+    "option_explain.addonLogLength.txt": {
+        "global_cache": false,
+        "version_id": 1000110,
+        "version_string": "1.0.1 Alpha",
+        "hash": "e5160754543a2378d18cb48ca04dcd2f"
     }
 }

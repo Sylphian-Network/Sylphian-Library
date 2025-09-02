@@ -1,0 +1,1 @@
+Addon log data will be kept for this many days. Use 0 to keep change log data indefinitely.
