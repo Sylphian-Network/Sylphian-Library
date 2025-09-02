@@ -1,0 +1,17 @@
+{
+    "cron_class": "Sylphian\\Library\\Cron\\LogCleanup",
+    "cron_method": "cleanUpCron",
+    "run_rules": {
+        "day_type": "dow",
+        "dow": [
+            -1
+        ],
+        "hours": [
+            0
+        ],
+        "minutes": [
+            0
+        ]
+    },
+    "active": true
+}

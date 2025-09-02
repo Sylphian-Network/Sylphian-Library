@@ -35,6 +35,30 @@
         "version_string": "1.0.0 Alpha",
         "hash": "a5b0cc194de719d7ade6d196b0181d47"
     },
+    "clear_addon_logs.txt": {
+        "global_cache": false,
+        "version_id": 1000110,
+        "version_string": "1.0.1 Alpha",
+        "hash": "d70d18bd960e149e91fc77750cdf9d2d"
+    },
+    "clear_all_logs_for_addon_warning.txt": {
+        "global_cache": false,
+        "version_id": 1000110,
+        "version_string": "1.0.1 Alpha",
+        "hash": "e23c60760d480b492a96d8d6c199e784"
+    },
+    "clear_logs.txt": {
+        "global_cache": false,
+        "version_id": 1000110,
+        "version_string": "1.0.1 Alpha",
+        "hash": "ce98e286e5d4b5e3794d676901633de4"
+    },
+    "cron_entry.addonLogCleanup.txt": {
+        "global_cache": false,
+        "version_id": 1000110,
+        "version_string": "1.0.1 Alpha",
+        "hash": "b610fb9aa5bee9843cb1b808e0982501"
+    },
     "debug.txt": {
         "global_cache": false,
         "version_id": 1000010,
@@ -64,5 +88,35 @@
         "version_id": 1000010,
         "version_string": "1.0.0 Alpha",
         "hash": "4dec49160316f2770fad73ff55e65cc0"
+    },
+    "no_logs_for_addon.txt": {
+        "global_cache": false,
+        "version_id": 1000110,
+        "version_string": "1.0.1 Alpha",
+        "hash": "6fd433d5bf31335905a878325d9c54e4"
+    },
+    "option.addonLogCleanupDebug.txt": {
+        "global_cache": false,
+        "version_id": 1000110,
+        "version_string": "1.0.1 Alpha",
+        "hash": "fedb1e41fca6583457535ad8ab32d84b"
+    },
+    "option.addonLogLength.txt": {
+        "global_cache": false,
+        "version_id": 1000110,
+        "version_string": "1.0.1 Alpha",
+        "hash": "d1268171bdad38c51b8cf96f74f52bce"
+    },
+    "option_explain.addonLogCleanupDebug.txt": {
+        "global_cache": false,
+        "version_id": 1000110,
+        "version_string": "1.0.1 Alpha",
+        "hash": "51797a59f524b7040ace874af0728a01"
+    },
+    "option_explain.addonLogLength.txt": {
+        "global_cache": false,
+        "version_id": 1000110,
+        "version_string": "1.0.1 Alpha",
+        "hash": "e5160754543a2378d18cb48ca04dcd2f"
     }
 }

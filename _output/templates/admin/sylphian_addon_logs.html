@@ -1,8 +1,15 @@
 <xf:title>{{ phrase_dynamic('logs_for_addon', {'addon': $addon.title}) }}</xf:title>
 
 <xf:pageaction>
-    <xf:button href="{{ link('logs/addon_logs') }}" icon="fa-arrow-left">
+    <xf:button href="{{ link('logs/addon_logs') }}">
+		<xf:fa icon="fa-arrow-left" />
         {{ phrase('back_to_addons') }}
+    </xf:button>
+	
+    <xf:button href="{{ link('logs/addon_logs/clear', null, {'addon_id': $addonId}) }}" 
+               overlay="true"
+			   icon="delete" >
+        {{ phrase('clear_logs') }}
     </xf:button>
 </xf:pageaction>
 

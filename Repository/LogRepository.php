@@ -217,22 +217,22 @@ class LogRepository extends Repository
 			->total();
 	}
 
-    /**
-     * Check if there are any error logs in the system
-     *
-     * @return bool
-     */
-    public function hasErrorLogs(): bool
-    {
-        $hasErrors = $this->db()->fetchOne('
+	/**
+	 * Check if there are any error logs in the system
+	 *
+	 * @return bool
+	 */
+	public function hasErrorLogs(): bool
+	{
+		$hasErrors = $this->db()->fetchOne('
         SELECT log_id
         FROM xf_addon_log
         WHERE type = ?
         LIMIT 1
     ', 'error');
 
-        return (bool) $hasErrors;
-    }
+		return (bool) $hasErrors;
+	}
 
 	/**
 	 * Get all unique addons with their log counts
@@ -244,10 +244,17 @@ class LogRepository extends Repository
 		$db = $this->db();
 
 		$addonCounts = $db->fetchAllKeyed(
-			"SELECT addon_id, COUNT(*) AS log_count 
-         FROM xf_addon_log 
-         GROUP BY addon_id
-         ORDER BY log_count DESC",
+			"SELECT 
+        addon_id, 
+        COUNT(*) AS log_count,
+        SUM(IF(type = 'info', 1, 0)) AS info_count,
+        SUM(IF(type = 'warning', 1, 0)) AS warning_count,
+        SUM(IF(type = 'error', 1, 0)) AS error_count,
+        SUM(IF(type = 'debug', 1, 0)) AS debug_count,
+        MAX(date) AS latest_log_date
+     FROM xf_addon_log 
+     GROUP BY addon_id
+     ORDER BY log_count DESC",
 			'addon_id'
 		);
 
@@ -265,6 +272,13 @@ class LogRepository extends Repository
 				$result[$addonId] = [
 					'addon' => $addons[$addonId],
 					'log_count' => $addonCounts[$addonId]['log_count'],
+					'latest_log_date' => $addonCounts[$addonId]['latest_log_date'],
+					'type_counts' => [
+						'info' => $addonCounts[$addonId]['info_count'],
+						'warning' => $addonCounts[$addonId]['warning_count'],
+						'error' => $addonCounts[$addonId]['error_count'],
+						'debug' => $addonCounts[$addonId]['debug_count'],
+					],
 				];
 			}
 			else
@@ -273,10 +287,110 @@ class LogRepository extends Repository
 					'addon_id' => $addonId,
 					'addon' => null,
 					'log_count' => $addonCounts[$addonId]['log_count'],
+					'latest_log_date' => $addonCounts[$addonId]['latest_log_date'],
+					'type_counts' => [
+						'info' => $addonCounts[$addonId]['info_count'],
+						'warning' => $addonCounts[$addonId]['warning_count'],
+						'error' => $addonCounts[$addonId]['error_count'],
+						'debug' => $addonCounts[$addonId]['debug_count'],
+					],
 				];
 			}
 		}
 
 		return $result;
+	}
+
+	/**
+	 * Clear all logs for a specific addon
+	 *
+	 * @param string $addonId The addon ID to clear logs for
+	 * @return int Number of logs deleted
+	 */
+	public function clearLogsForAddon(string $addonId): int
+	{
+		$db = $this->db();
+		return $db->delete('xf_addon_log', 'addon_id = ?', $addonId);
+	}
+
+	/**
+	 * Get the configured log length for addon logs
+	 *
+	 * @return int
+	 */
+	public function getLogLength(): int
+	{
+		return $this->options()->addonLogLength;
+	}
+
+	/**
+	 * Check if addon logging is enabled
+	 *
+	 * @return bool
+	 */
+	public function isEnabled(): bool
+	{
+		return $this->getLogLength() !== 0;
+	}
+
+	/**
+	 * Get the cutoff timestamp for pruning
+	 *
+	 * @return int
+	 */
+	public function getCutOff(): int
+	{
+		return \XF::$time - 86400 * $this->getLogLength();
+	}
+
+	/**
+	 * Prune old add-on logs based on addonLogLength setting
+	 *
+	 * @param int|null $cutOff Optional custom cutoff timestamp
+	 * @return void
+	 */
+	public function pruneLogs(?int $cutOff = null): void
+	{
+		if (!$this->isEnabled())
+		{
+			return;
+		}
+
+		$cutOff = $cutOff ?? $this->getCutOff();
+		$debugEnabled = $this->options()->addonLogCleanupDebug ?? false;
+
+		if ($debugEnabled)
+		{
+			$deletedCount = $this->db()->fetchOne('SELECT COUNT(*) FROM xf_addon_log WHERE date < ?', $cutOff);
+
+			$this->db()->delete('xf_addon_log', 'date < ?', $cutOff);
+
+			if ($deletedCount > 0)
+			{
+				$cutOffDate = date('Y-m-d H:i:s', $cutOff);
+
+				$this->logDebug(
+					'Addon logs pruned successfully',
+					[
+						'deleted_records' => $deletedCount,
+						'cutoff_date' => $cutOffDate,
+						'pruned_date' => date('Y-m-d H:i:s'),
+					],
+					'Sylphian/Library'
+				);
+			}
+			else
+			{
+				$this->logDebug('No addon logs needed pruning', null, 'Sylphian/Library');
+			}
+		}
+		else
+		{
+			$this->db()->delete(
+				'xf_addon_log',
+				'date < ?',
+				$cutOff
+			);
+		}
 	}
 }

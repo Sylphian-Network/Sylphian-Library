@@ -129,4 +129,32 @@ class AddonLogs extends AbstractController
 
 		return $this->view('Sylphian\Library:LogDelete', 'sylphian_library_log_delete', $viewParams);
 	}
+
+	public function actionClear(): AbstractReply
+	{
+		$addonId = $this->filter('addon_id', 'str');
+		if (!$addonId)
+		{
+			return $this->notFound();
+		}
+
+		$addon = $this->em()->find('XF:AddOn', $addonId);
+
+		if ($this->isPost())
+		{
+			/** @var LogRepository $logRepo */
+			$logRepo = $this->repository('Sylphian\Library:Log');
+
+			$logRepo->clearLogsForAddon($addonId);
+
+			return $this->redirect($this->buildLink('logs/addon_logs/view', null, ['addon_id' => $addonId]));
+		}
+
+		$viewParams = [
+			'addon' => $addon,
+			'addonId' => $addonId,
+		];
+
+		return $this->view('Sylphian\Library:LogClear', 'sylphian_library_logs_clear', $viewParams);
+	}
 }

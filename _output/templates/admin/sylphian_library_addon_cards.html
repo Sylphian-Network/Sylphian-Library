@@ -19,9 +19,32 @@
                             {{ phrase('version') }}: {{ $addonInfo.addon.version_string }}
                         </xf:if>
                     </div>
-                    <div class="addon-card-logs">
-                        {{ phrase('log_entries') }}: {{ $addonInfo.log_count }}
-                    </div>
+					
+					<div class="addon-card-last-activity">
+    					<xf:if is="$addonInfo.latest_log_date">
+							{{ phrase('last_activity') }}: {{ date_time($addonInfo.latest_log_date) }}
+						</xf:if>
+					</div>
+					
+					<div class="addon-card-logs">
+						<div class="addon-card-log-total">
+							{{ phrase('log_entries') }}: {{ $addonInfo.log_count }}
+						</div>
+						<div class="addon-card-log-types">
+							<div class="addon-card-log-type addon-card-log-info">
+								{{ phrase('info') }}: {{ $addonInfo.type_counts.info }}
+							</div>
+							<div class="addon-card-log-type addon-card-log-warning">
+								{{ phrase('warning') }}: {{ $addonInfo.type_counts.warning }}
+							</div>
+							<div class="addon-card-log-type addon-card-log-error">
+								{{ phrase('error') }}: {{ $addonInfo.type_counts.error }}
+							</div>
+							<div class="addon-card-log-type addon-card-log-debug">
+								{{ phrase('debug') }}: {{ $addonInfo.type_counts.debug }}
+							</div>
+						</div>
+					</div>
                 </div>
             </a>
         </div>

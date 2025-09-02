@@ -11,29 +11,29 @@ use XF\Mvc\Reply\View;
  */
 class IndexController extends XFCP_IndexController
 {
-    /**
-     * @return View|AbstractReply
-     */
-    public function actionIndex(): View|AbstractReply
-    {
-        $reply = parent::actionIndex();
+	/**
+	 * @return View|AbstractReply
+	 */
+	public function actionIndex()
+	{
+		$reply = parent::actionIndex();
 
-        if ($reply instanceof View)
-        {
-            $visitor = \XF::visitor();
-            if ($visitor->hasAdminPermission('viewLogs'))
-            {
-                /** @var LogRepository $logRepo */
-                $logRepo = $this->repository('Sylphian\Library:Log');
+		if ($reply instanceof View)
+		{
+			$visitor = \XF::visitor();
+			if ($visitor->hasAdminPermission('viewLogs'))
+			{
+				/** @var LogRepository $logRepo */
+				$logRepo = $this->repository('Sylphian\Library:Log');
 
-                $hasErrorLogs = $logRepo->hasErrorLogs();
+				$hasErrorLogs = $logRepo->hasErrorLogs();
 
-                $viewParams = $reply->getParams();
-                $viewParams['addonErrorLogs'] = $hasErrorLogs;
-                $reply->setParams($viewParams);
-            }
-        }
+				$viewParams = $reply->getParams();
+				$viewParams['addonErrorLogs'] = $hasErrorLogs;
+				$reply->setParams($viewParams);
+			}
+		}
 
-        return $reply;
-    }
+		return $reply;
+	}
 }

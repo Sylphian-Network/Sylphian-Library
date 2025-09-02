@@ -1,0 +1,12 @@
+<xf:title>{{ phrase('clear_addon_logs') }}</xf:title>
+
+<xf:form action="{{ link('logs/addon_logs/clear', null, {'addon_id': $addonId}) }}" class="block">
+    <div class="block-container">
+        <div class="block-body">
+            <xf:inforow>
+                {{ phrase_dynamic('clear_all_logs_for_addon_warning', {'addon': $addonId})|raw }}
+            </xf:inforow>
+        </div>
+        <xf:submitrow submit="{{ phrase('clear_logs') }}" icon="delete" />
+    </div>
+</xf:form>
