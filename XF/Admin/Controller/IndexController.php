@@ -14,7 +14,7 @@ class IndexController extends XFCP_IndexController
 	/**
 	 * @return View|AbstractReply
 	 */
-	public function actionIndex(): View|AbstractReply
+	public function actionIndex()
 	{
 		$reply = parent::actionIndex();
 
