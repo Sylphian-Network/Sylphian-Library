@@ -2,172 +2,20 @@
 
 namespace Sylphian\Library\Repository;
 
-use Sylphian\Library\Entity\AddonLog;
-use Sylphian\Library\LogType;
+use Psr\Log\LogLevel;
+use Sylphian\Library\Logger\AddonLogger;
 use XF\Mvc\Entity\Repository;
-use XF\PrintableException;
 
 class LogRepository extends Repository
 {
 	/**
-	 * Generic log method that can be used with any log type
+	 * Get an instance of AddonLogger for internal use
 	 *
-	 * @param LogType $type The type of log entry
-	 * @param string $message The log message
-	 * @param array|null $details For extra details
-	 * @param string|null $addonId The addon ID (defaults to the calling addon)
-	 * @return AddonLog
+	 * @return AddonLogger
 	 */
-	public function log(LogType $type, string $message, ?array $details = null, ?string $addonId = null): AddonLog
+	private function getAddonLogger(): AddonLogger
 	{
-		if ($addonId === null)
-		{
-			$backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 3);
-			$calledThroughHelper = false;
-
-			if (isset($backtrace[1]['class']) && $backtrace[1]['class'] === self::class)
-			{
-				$helperMethods = ['logInfo', 'logWarning', 'logError', 'logDebug'];
-				if (isset($backtrace[1]['function']) && in_array($backtrace[1]['function'], $helperMethods))
-				{
-					$calledThroughHelper = true;
-				}
-			}
-
-			$addonId = $this->determineAddonId($calledThroughHelper ? 2 : 1);
-
-			if ($addonId === null)
-			{
-				$addonId = 'XF';
-			}
-		}
-
-		$addon = $this->em->find('XF:AddOn', $addonId);
-		if (!$addon && $addonId !== 'XF')
-		{
-			$addonId = 'XF';
-		}
-
-		/** @var AddonLog $log */
-		$log = $this->em->create('Sylphian\Library:AddonLog');
-		$log->addon_id = $addonId;
-		$log->type = $type->value;
-		$log->content = $message;
-		$log->date = \XF::$time;
-		$log->user_id = \XF::visitor()->user_id ?: null;
-		$log->details = $details;
-
-		try
-		{
-			$log->save();
-		}
-		catch (PrintableException $e)
-		{
-			\XF::logError('Error saving addon log: ' . implode(', ', $e->getMessages()));
-
-			if ($addonId !== 'XF')
-			{
-				return $this->log($type, $message, $details, 'XF');
-			}
-		}
-		catch (\Exception $e)
-		{
-			\XF::logException($e, false, 'Error saving addon log: ');
-		}
-
-		return $log;
-	}
-
-	/**
-	 * Log an info message
-	 *
-	 * @param string $message The log message
-	 * @param array|null $details For extra details
-	 * @param string|null $addonId The addon ID (defaults to the calling addon)
-	 * @return AddonLog
-	 */
-	public function logInfo(string $message, ?array $details = null, ?string $addonId = null): AddonLog
-	{
-		return $this->log(LogType::INFO, $message, $details, $addonId);
-	}
-
-	/**
-	 * Log a warning message
-	 *
-	 * @param string $message The log message
-	 * @param array|null $details For extra details
-	 * @param string|null $addonId The addon ID (defaults to the calling addon)
-	 * @return AddonLog
-	 */
-	public function logWarning(string $message, ?array $details = null, ?string $addonId = null): AddonLog
-	{
-		return $this->log(LogType::WARNING, $message, $details, $addonId);
-	}
-
-	/**
-	 * Log an error message
-	 *
-	 * @param string $message The log message
-	 * @param array|null $details For extra details
-	 * @param string|null $addonId The addon ID (defaults to the calling addon)
-	 * @return AddonLog
-	 */
-	public function logError(string $message, ?array $details = null, ?string $addonId = null): AddonLog
-	{
-		return $this->log(LogType::ERROR, $message, $details, $addonId);
-	}
-
-	/**
-	 * Log a debug message
-	 *
-	 * @param string $message The log message
-	 * @param array|null $details For extra details
-	 * @param string|null $addonId The addon ID (defaults to the calling addon)
-	 * @return AddonLog
-	 */
-	public function logDebug(string $message, ?array $details = null, ?string $addonId = null): AddonLog
-	{
-		return $this->log(LogType::DEBUG, $message, $details, $addonId);
-	}
-
-	/**
-	 * Determine the addon ID from the call stack
-	 *
-	 * If logs are created in the library, the addon id will need to be manually specified.
-	 *
-	 * @param int $depth The backtrace depth to check
-	 * @return string|null The determined addon ID or null if couldn't determine
-	 */
-	private function determineAddonId(int $depth = 2): ?string
-	{
-		$backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 10);
-
-		$index = $depth;
-
-		while (isset($backtrace[$index]))
-		{
-			$caller = $backtrace[$index];
-
-			if (isset($caller['class']))
-			{
-				$classParts = explode('\\', $caller['class']);
-
-				if (count($classParts) >= 2)
-				{
-					if ($classParts[0] === 'Sylphian' && $classParts[1] === 'Library')
-					{
-						$index++;
-						continue;
-					}
-
-					return $classParts[0] . '/' . $classParts[1];
-				}
-			}
-
-			$index++;
-		}
-
-		return null;
+		return new AddonLogger($this->em);
 	}
 
 	/**
@@ -182,23 +30,6 @@ class LogRepository extends Repository
 	{
 		$finder = $this->finder('Sylphian\Library:AddonLog')
 			->where('addon_id', $addonId)
-			->order('date', 'DESC');
-
-		return $finder->limitByPage($page, $perPage)->fetch()->toArray();
-	}
-
-	/**
-	 * Get logs of a specific type
-	 *
-	 * @param LogType $type The type of logs to retrieve
-	 * @param int|null $page
-	 * @param int|null $perPage
-	 * @return array
-	 */
-	public function getLogsByType(LogType $type, ?int $page = 1, ?int $perPage = 20): array
-	{
-		$finder = $this->finder('Sylphian\Library:AddonLog')
-			->where('type', $type->value)
 			->order('date', 'DESC');
 
 		return $finder->limitByPage($page, $perPage)->fetch()->toArray();
@@ -247,9 +78,13 @@ class LogRepository extends Repository
 			"SELECT 
         addon_id, 
         COUNT(*) AS log_count,
-        SUM(IF(type = 'info', 1, 0)) AS info_count,
-        SUM(IF(type = 'warning', 1, 0)) AS warning_count,
+        SUM(IF(type = 'emergency', 1, 0)) AS emergency_count,
+        SUM(IF(type = 'alert', 1, 0)) AS alert_count,
+        SUM(IF(type = 'critical', 1, 0)) AS critical_count,
         SUM(IF(type = 'error', 1, 0)) AS error_count,
+        SUM(IF(type = 'warning', 1, 0)) AS warning_count,
+        SUM(IF(type = 'notice', 1, 0)) AS notice_count,
+        SUM(IF(type = 'info', 1, 0)) AS info_count,
         SUM(IF(type = 'debug', 1, 0)) AS debug_count,
         MAX(date) AS latest_log_date
      FROM xf_addon_log 
@@ -267,18 +102,24 @@ class LogRepository extends Repository
 		$result = [];
 		foreach ($addonIds AS $addonId)
 		{
+			$typeCounts = [
+				'emergency' => $addonCounts[$addonId]['emergency_count'],
+				'alert' => $addonCounts[$addonId]['alert_count'],
+				'critical' => $addonCounts[$addonId]['critical_count'],
+				'error' => $addonCounts[$addonId]['error_count'],
+				'warning' => $addonCounts[$addonId]['warning_count'],
+				'notice' => $addonCounts[$addonId]['notice_count'],
+				'info' => $addonCounts[$addonId]['info_count'],
+				'debug' => $addonCounts[$addonId]['debug_count'],
+			];
+
 			if (isset($addons[$addonId]))
 			{
 				$result[$addonId] = [
 					'addon' => $addons[$addonId],
 					'log_count' => $addonCounts[$addonId]['log_count'],
 					'latest_log_date' => $addonCounts[$addonId]['latest_log_date'],
-					'type_counts' => [
-						'info' => $addonCounts[$addonId]['info_count'],
-						'warning' => $addonCounts[$addonId]['warning_count'],
-						'error' => $addonCounts[$addonId]['error_count'],
-						'debug' => $addonCounts[$addonId]['debug_count'],
-					],
+					'type_counts' => $typeCounts,
 				];
 			}
 			else
@@ -288,12 +129,7 @@ class LogRepository extends Repository
 					'addon' => null,
 					'log_count' => $addonCounts[$addonId]['log_count'],
 					'latest_log_date' => $addonCounts[$addonId]['latest_log_date'],
-					'type_counts' => [
-						'info' => $addonCounts[$addonId]['info_count'],
-						'warning' => $addonCounts[$addonId]['warning_count'],
-						'error' => $addonCounts[$addonId]['error_count'],
-						'debug' => $addonCounts[$addonId]['debug_count'],
-					],
+					'type_counts' => $typeCounts,
 				];
 			}
 		}
@@ -369,19 +205,49 @@ class LogRepository extends Repository
 			{
 				$cutOffDate = date('Y-m-d H:i:s', $cutOff);
 
-				$this->logDebug(
-					'Addon logs pruned successfully',
-					[
-						'deleted_records' => $deletedCount,
-						'cutoff_date' => $cutOffDate,
-						'pruned_date' => date('Y-m-d H:i:s'),
-					],
-					'Sylphian/Library'
-				);
+				$logger = $this->getAddonLogger();
+				$logger->debug('Add-on logs pruned successfully', [
+					'deleted_records' => $deletedCount,
+					'cutoff_date' => $cutOffDate,
+					'pruned_date' => date('Y-m-d H:i:s'),
+					'addon_id' => 'Sylphian/Library',
+				]);
+				;
 			}
 			else
 			{
-				$this->logDebug('No addon logs needed pruning', null, 'Sylphian/Library');
+				$logger = $this->getAddonLogger();
+				$logger->debug('No add-on logs needed pruning', [
+					'addon_id' => 'Sylphian/Library',
+				]);
+
+				$logger->log(LogLevel::ALERT, 'This is a test universal log', [
+					'addon_id' => 'Sylphian/Library',
+				]);
+				$logger->info('This is a test info log', [
+					'addon_id' => 'Sylphian/Library',
+				]);
+				$logger->warning('This is a test warning log', [
+					'addon_id' => 'Sylphian/Library',
+				]);
+				$logger->error('This is a test error log', [
+					'addon_id' => 'Sylphian/Library',
+				]);
+				$logger->debug('This is a test debug log', [
+					'addon_id' => 'Sylphian/Library',
+				]);
+				$logger->notice('This is a test notice log', [
+					'addon_id' => 'Sylphian/Library',
+				]);
+				$logger->emergency('This is a test emergency log', [
+					'addon_id' => 'Sylphian/Library',
+				]);
+				$logger->alert('This is a test alert log', [
+					'addon_id' => 'Sylphian/Library',
+				]);
+				$logger->critical('This is a test critical log', [
+					'addon_id' => 'Sylphian/Library',
+				]);
 			}
 		}
 		else

@@ -1,12 +1,12 @@
-<xf:title>{{ phrase('clear_addon_logs') }}</xf:title>
+<xf:title>{{ phrase_dynamic('sylphian_library_clear_addon_logs', {'addon': $addonId}) }}</xf:title>
 
 <xf:form action="{{ link('logs/addon_logs/clear', null, {'addon_id': $addonId}) }}" class="block">
     <div class="block-container">
         <div class="block-body">
             <xf:inforow>
-                {{ phrase_dynamic('clear_all_logs_for_addon_warning', {'addon': $addonId})|raw }}
+                {{ phrase_dynamic('sylphian_library_clear_all_logs_for_addon_warning', {'addon': $addonId})|raw }}
             </xf:inforow>
         </div>
-        <xf:submitrow submit="{{ phrase('clear_logs') }}" icon="delete" />
+        <xf:submitrow submit="{{ phrase('sylphian_library_clear_logs') }}" icon="delete" />
     </div>
 </xf:form>

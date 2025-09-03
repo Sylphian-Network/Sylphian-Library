@@ -1,21 +1,23 @@
-<xf:title>{{ phrase('addon_log_details') }}</xf:title>
+<xf:title>{{ phrase_dynamic('sylphian_library_log_details_title', {'addon': $log.addon_id, 'id': $log.log_id}) }}</xf:title>
 
 <div class="block">
     <div class="block-container">
         <div class="block-body">
             <xf:formrow label="{{ phrase('log_type') }}">
-                <span class="label 
-                {{ $log.type == 'info' ? 'label--primary' :
-                 ($log.type == 'error' ? 'label--error' :
-                  ($log.type == 'warning' ? 'label--orange' :
-                   ($log.type == 'debug' ? 'label--gray' :
-                    'label--info'))) }}">
-                    <xf:fa icon="{{ $log.type == 'info' ? 'fa-info-circle' : ($log.type == 'error' ? 'fa-times' : ($log.type == 'warning' ? 'fa-exclamation-triangle' : 'fa-bug')) }}" />
-                    {{ phrase_dynamic($log.type) }}
+                <span class="label log-label log-type-{{ $log.type }}">
+                    <xf:fa icon="{{ 
+						$log.type == 'emergency' ? 'fa-exclamation-triangle' : 
+						($log.type == 'alert' ? 'fa-bell' : 
+						($log.type == 'critical' ? 'fa-times' : 
+						($log.type == 'error' ? 'fa-times' : 
+						($log.type == 'warning' ? 'fa-exclamation-triangle' : 
+						($log.type == 'notice' ? 'fa-info-circle' :
+						($log.type == 'info' ? 'fa-info-circle' : 'fa-bug')))))) }}" />
+                    {{ phrase_dynamic("sylphian_library_logType_" . $log.type) }}
                 </span>
             </xf:formrow>
 
-            <xf:formrow label="{{ phrase('addon_id') }}">
+            <xf:formrow label="{{ phrase('sylphian_library_addon_id') }}">
                 {{ $log.addon_id }}
             </xf:formrow>
 

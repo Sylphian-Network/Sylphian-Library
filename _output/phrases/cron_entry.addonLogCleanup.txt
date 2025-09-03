@@ -1,1 +1,1 @@
-Addon log cleanup
+[Sylphian] Addon log cleanup

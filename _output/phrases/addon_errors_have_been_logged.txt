@@ -1,1 +1,0 @@
-Addon errors have been logged. You should review these.

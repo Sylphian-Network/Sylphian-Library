@@ -1,99 +1,9 @@
 {
-    "addon_errors_have_been_logged.txt": {
-        "global_cache": false,
-        "version_id": 1000110,
-        "version_string": "1.0.1 Alpha",
-        "hash": "b4160ad587782b68be048b9df588b0b7"
-    },
-    "addon_id.txt": {
-        "global_cache": false,
-        "version_id": 1000010,
-        "version_string": "1.0.0 Alpha",
-        "hash": "ea98531699c415196c1426a08e032263"
-    },
-    "addon_log_details.txt": {
-        "global_cache": false,
-        "version_id": 1000010,
-        "version_string": "1.0.0 Alpha",
-        "hash": "872b4838703543bb079130c1388e7316"
-    },
-    "admin_navigation.sylphian_addon_logs.txt": {
-        "global_cache": false,
-        "version_id": 1000010,
-        "version_string": "1.0.0 Alpha",
-        "hash": "1bf36fcda3904ddd1e6356015badee4f"
-    },
-    "available_addon_logs.txt": {
-        "global_cache": false,
-        "version_id": 1000010,
-        "version_string": "1.0.0 Alpha",
-        "hash": "97fba50d456a74cc8d4d6a6fb049d362"
-    },
-    "back_to_addons.txt": {
-        "global_cache": false,
-        "version_id": 1000010,
-        "version_string": "1.0.0 Alpha",
-        "hash": "a5b0cc194de719d7ade6d196b0181d47"
-    },
-    "clear_addon_logs.txt": {
-        "global_cache": false,
-        "version_id": 1000110,
-        "version_string": "1.0.1 Alpha",
-        "hash": "d70d18bd960e149e91fc77750cdf9d2d"
-    },
-    "clear_all_logs_for_addon_warning.txt": {
-        "global_cache": false,
-        "version_id": 1000110,
-        "version_string": "1.0.1 Alpha",
-        "hash": "e23c60760d480b492a96d8d6c199e784"
-    },
-    "clear_logs.txt": {
-        "global_cache": false,
-        "version_id": 1000110,
-        "version_string": "1.0.1 Alpha",
-        "hash": "ce98e286e5d4b5e3794d676901633de4"
-    },
     "cron_entry.addonLogCleanup.txt": {
         "global_cache": false,
-        "version_id": 1000110,
-        "version_string": "1.0.1 Alpha",
-        "hash": "b610fb9aa5bee9843cb1b808e0982501"
-    },
-    "debug.txt": {
-        "global_cache": false,
-        "version_id": 1000010,
-        "version_string": "1.0.0 Alpha",
-        "hash": "a603905470e2a5b8c13e96b579ef0dba"
-    },
-    "delete_addon_log_warning_text.txt": {
-        "global_cache": false,
-        "version_id": 1000010,
-        "version_string": "1.0.0 Alpha",
-        "hash": "17633eb33ffe2021377f897f0f03d95f"
-    },
-    "delete_addon_log_warning_title.txt": {
-        "global_cache": false,
-        "version_id": 1000010,
-        "version_string": "1.0.0 Alpha",
-        "hash": "d1582f4ad6cab68fdcc39419f753041b"
-    },
-    "log_entries.txt": {
-        "global_cache": false,
-        "version_id": 1000010,
-        "version_string": "1.0.0 Alpha",
-        "hash": "2426f66c878e987e16967d8720572173"
-    },
-    "logs_for_addon.txt": {
-        "global_cache": false,
-        "version_id": 1000010,
-        "version_string": "1.0.0 Alpha",
-        "hash": "4dec49160316f2770fad73ff55e65cc0"
-    },
-    "no_logs_for_addon.txt": {
-        "global_cache": false,
-        "version_id": 1000110,
-        "version_string": "1.0.1 Alpha",
-        "hash": "6fd433d5bf31335905a878325d9c54e4"
+        "version_id": 1000170,
+        "version_string": "1.0.1",
+        "hash": "b6d8cdec12c17ce213ffd730cf04372b"
     },
     "option.addonLogCleanupDebug.txt": {
         "global_cache": false,
@@ -118,5 +28,137 @@
         "version_id": 1000110,
         "version_string": "1.0.1 Alpha",
         "hash": "e5160754543a2378d18cb48ca04dcd2f"
+    },
+    "sylphian_library_addon_id.txt": {
+        "global_cache": false,
+        "version_id": 1000170,
+        "version_string": "1.0.1",
+        "hash": "7b132b5cdf95542c01cd894929a1277b"
+    },
+    "sylphian_library_available_addon_logs.txt": {
+        "global_cache": false,
+        "version_id": 1000170,
+        "version_string": "1.0.1",
+        "hash": "50133629e32eb6e21f0570e4eda17cd1"
+    },
+    "sylphian_library_back_to_addons.txt": {
+        "global_cache": false,
+        "version_id": 1000170,
+        "version_string": "1.0.1",
+        "hash": "8a1e9a2be13be983c694c722f7f63365"
+    },
+    "sylphian_library_clear_addon_logs.txt": {
+        "global_cache": false,
+        "version_id": 1000170,
+        "version_string": "1.0.1",
+        "hash": "b5ddda86bd125ebb1ad409bfee5c7532"
+    },
+    "sylphian_library_clear_all_logs_for_addon_warning.txt": {
+        "global_cache": false,
+        "version_id": 1000170,
+        "version_string": "1.0.1",
+        "hash": "e23c60760d480b492a96d8d6c199e784"
+    },
+    "sylphian_library_clear_logs.txt": {
+        "global_cache": false,
+        "version_id": 1000170,
+        "version_string": "1.0.1",
+        "hash": "ce98e286e5d4b5e3794d676901633de4"
+    },
+    "sylphian_library_delete_addon_log.txt": {
+        "global_cache": false,
+        "version_id": 1000170,
+        "version_string": "1.0.1",
+        "hash": "6a003175271f722982fcc4190ffae047"
+    },
+    "sylphian_library_delete_log_warning_text.txt": {
+        "global_cache": false,
+        "version_id": 1000170,
+        "version_string": "1.0.1",
+        "hash": "ca667a1f1b614b71e380905b8c4a2a40"
+    },
+    "sylphian_library_delete_log_warning_title.txt": {
+        "global_cache": false,
+        "version_id": 1000170,
+        "version_string": "1.0.1",
+        "hash": "0df3d64529f034569ceb384eecfdae8d"
+    },
+    "sylphian_library_logType_alert.txt": {
+        "global_cache": false,
+        "version_id": 1000170,
+        "version_string": "1.0.1",
+        "hash": "b92071d61c88498171928745ca53078b"
+    },
+    "sylphian_library_logType_critical.txt": {
+        "global_cache": false,
+        "version_id": 1000170,
+        "version_string": "1.0.1",
+        "hash": "278d01e5af56273bae1bb99a98b370cd"
+    },
+    "sylphian_library_logType_debug.txt": {
+        "global_cache": false,
+        "version_id": 1000170,
+        "version_string": "1.0.1",
+        "hash": "a603905470e2a5b8c13e96b579ef0dba"
+    },
+    "sylphian_library_logType_emergency.txt": {
+        "global_cache": false,
+        "version_id": 1000170,
+        "version_string": "1.0.1",
+        "hash": "a3fa706f20bc0b7858b7ae6932261940"
+    },
+    "sylphian_library_logType_error.txt": {
+        "global_cache": false,
+        "version_id": 1000170,
+        "version_string": "1.0.1",
+        "hash": "902b0d55fddef6f8d651fe1035b7d4bd"
+    },
+    "sylphian_library_logType_info.txt": {
+        "global_cache": false,
+        "version_id": 1000170,
+        "version_string": "1.0.1",
+        "hash": "4059b0251f66a18cb56f544728796875"
+    },
+    "sylphian_library_logType_notice.txt": {
+        "global_cache": false,
+        "version_id": 1000170,
+        "version_string": "1.0.1",
+        "hash": "24efa7ee4511563b16144f39706d594f"
+    },
+    "sylphian_library_logType_warning.txt": {
+        "global_cache": false,
+        "version_id": 1000170,
+        "version_string": "1.0.1",
+        "hash": "0eaadb4fcb48a0a0ed7bc9868be9fbaa"
+    },
+    "sylphian_library_log_details_title.txt": {
+        "global_cache": false,
+        "version_id": 1000170,
+        "version_string": "1.0.1",
+        "hash": "153db0f15c167906806cb903f2751e81"
+    },
+    "sylphian_library_log_entries.txt": {
+        "global_cache": false,
+        "version_id": 1000170,
+        "version_string": "1.0.1",
+        "hash": "2426f66c878e987e16967d8720572173"
+    },
+    "sylphian_library_logs_for_addon.txt": {
+        "global_cache": false,
+        "version_id": 1000170,
+        "version_string": "1.0.1",
+        "hash": "4dec49160316f2770fad73ff55e65cc0"
+    },
+    "sylphian_library_no_logs_available.txt": {
+        "global_cache": false,
+        "version_id": 1000170,
+        "version_string": "1.0.1",
+        "hash": "2bfddac86c0d1672635a81a3f8aecbcb"
+    },
+    "sylphian_library_view_addon_log_details.txt": {
+        "global_cache": false,
+        "version_id": 1000170,
+        "version_string": "1.0.1",
+        "hash": "ebc64edca4c656f7d0b721d7626f81d6"
     }
 }

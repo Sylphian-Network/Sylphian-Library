@@ -1,3 +1,5 @@
+@import "log_styles.less";
+
 .addon-card-container {
     display: flex;
     flex-wrap: wrap;
@@ -67,47 +69,42 @@
 .addon-card-log-types {
     display: flex;
     flex-wrap: wrap;
-    gap: 5px;
-    font-size: 12px;
+    gap: 6px;
+    margin-top: 8px;
 }
 
 .addon-card-log-type {
-    padding: 2px 5px;
-    border-radius: 3px;
+    .log-label;
 }
 
-.addon-card-log-info {
-    background-color: #e3f2fd;
-    color: #0d47a1;
+.addon-card-log-emergency {
+    .log-type-emergency;
 }
 
-.addon-card-log-warning {
-    background-color: #fff3e0;
-    color: #e65100;
+.addon-card-log-alert {
+    .log-type-alert;
+}
+
+.addon-card-log-critical {
+    .log-type-critical;
 }
 
 .addon-card-log-error {
-    background-color: #ffebee;
-    color: #b71c1c;
+    .log-type-error;
+}
+
+.addon-card-log-warning {
+    .log-type-warning;
+}
+
+.addon-card-log-notice {
+    .log-type-notice;
+}
+
+.addon-card-log-info {
+    .log-type-info;
 }
 
 .addon-card-log-debug {
-    background-color: #e8f5e9;
-    color: #1b5e20;
-}
-
-.label--info {
-    background-color: @xf-infoColor;
-}
-
-.label--warning {
-    background-color: @xf-warningColor;
-}
-
-.label--error {
-    background-color: @xf-errorColor;
-}
-
-.label--debug {
-    background-color: @xf-textColorMuted;
+    .log-type-debug;
 }
