@@ -2,7 +2,6 @@
 
 namespace Sylphian\Library\Repository;
 
-use Psr\Log\LogLevel;
 use Sylphian\Library\Logger\AddonLogger;
 use XF\Mvc\Entity\Repository;
 
@@ -212,40 +211,11 @@ class LogRepository extends Repository
 					'pruned_date' => date('Y-m-d H:i:s'),
 					'addon_id' => 'Sylphian/Library',
 				]);
-				;
 			}
 			else
 			{
 				$logger = $this->getAddonLogger();
 				$logger->debug('No add-on logs needed pruning', [
-					'addon_id' => 'Sylphian/Library',
-				]);
-
-				$logger->log(LogLevel::ALERT, 'This is a test universal log', [
-					'addon_id' => 'Sylphian/Library',
-				]);
-				$logger->info('This is a test info log', [
-					'addon_id' => 'Sylphian/Library',
-				]);
-				$logger->warning('This is a test warning log', [
-					'addon_id' => 'Sylphian/Library',
-				]);
-				$logger->error('This is a test error log', [
-					'addon_id' => 'Sylphian/Library',
-				]);
-				$logger->debug('This is a test debug log', [
-					'addon_id' => 'Sylphian/Library',
-				]);
-				$logger->notice('This is a test notice log', [
-					'addon_id' => 'Sylphian/Library',
-				]);
-				$logger->emergency('This is a test emergency log', [
-					'addon_id' => 'Sylphian/Library',
-				]);
-				$logger->alert('This is a test alert log', [
-					'addon_id' => 'Sylphian/Library',
-				]);
-				$logger->critical('This is a test critical log', [
 					'addon_id' => 'Sylphian/Library',
 				]);
 			}
