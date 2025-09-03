@@ -25,4 +25,21 @@ trait LoggableTrait
 
 		return $this->logger;
 	}
+
+    /**
+     * Logs an error message and returns an Error reply
+     *
+     * @param \Stringable|string $error The error message to log and return
+     * @param array $context Additional context data for the log entry
+     * @param int $code HTTP response code
+     *
+     * @return \XF\Mvc\Reply\Error
+     */
+    protected function loggedError(\Stringable|string $error, array $context = [], int $code = 200): \XF\Mvc\Reply\Error
+    {
+        $logger = $this->getLogger();
+        $logger->error((string)$error, $context);
+
+        return $this->error($error, $code);
+    }
 }
