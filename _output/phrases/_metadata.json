@@ -29,6 +29,12 @@
         "version_string": "1.0.1 Alpha",
         "hash": "e5160754543a2378d18cb48ca04dcd2f"
     },
+    "sylphian_library_addon_high_priority_logs_alert.txt": {
+        "global_cache": false,
+        "version_id": 1000210,
+        "version_string": "1.0.2",
+        "hash": "f6b2dc9cb3f6314148a5caef01b46dd3"
+    },
     "sylphian_library_addon_id.txt": {
         "global_cache": false,
         "version_id": 1000170,

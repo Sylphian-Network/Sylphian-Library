@@ -47,24 +47,32 @@ class LogRepository extends Repository
 			->total();
 	}
 
-	/**
-	 * Check if there are any error logs in the system
-	 *
-	 * @return bool
-	 */
-	public function hasErrorLogs(): bool
-	{
-		$hasErrors = $this->db()->fetchOne('
-        SELECT log_id
-        FROM xf_addon_log
-        WHERE type = ?
-        LIMIT 1
-    ', 'error');
+    /**
+     * Fetches high-priority log counts
+     *
+     * The types of errors it checks are 'emergency', 'critical', 'alert', 'error'
+     *
+     * @return array|null an array of counts or null if no matching these types are found
+     */
+    public function getHighPriorityLogCounts(): ?array
+    {
+        $finder = $this->finder('Sylphian\Library:AddonLog')
+            ->where('type', ['emergency', 'critical', 'alert', 'error']);
 
-		return (bool) $hasErrors;
-	}
+        if ($finder->total() <= 0) {
+            return null;
+        }
 
-	/**
+        return [
+            'emergency_count' => (clone $finder)->where('type', 'emergency')->total(),
+            'critical_count'  => (clone $finder)->where('type', 'critical')->total(),
+            'alert_count'     => (clone $finder)->where('type', 'alert')->total(),
+            'error_count'     => (clone $finder)->where('type', 'error')->total(),
+        ];
+    }
+
+
+    /**
 	 * Get all unique addons with their log counts
 	 *
 	 * @return array An array of addons with their log counts

@@ -26,11 +26,12 @@ class IndexController extends XFCP_IndexController
 				/** @var LogRepository $logRepo */
 				$logRepo = $this->repository('Sylphian\Library:Log');
 
-				$hasErrorLogs = $logRepo->hasErrorLogs();
+                $logCounts = $logRepo->getHighPriorityLogCounts();
 
-				$viewParams = $reply->getParams();
-				$viewParams['addonErrorLogs'] = $hasErrorLogs;
-				$reply->setParams($viewParams);
+                $viewParams = $reply->getParams();
+                $viewParams['addonErrorLogs'] = (bool)$logCounts;
+                $viewParams['addonErrorLogCounts'] = $logCounts;
+                $reply->setParams($viewParams);
 			}
 		}
 
