@@ -1,21 +1,29 @@
-<xf:title>{{ phrase('delete_addon_log_warning_title') }}</xf:title>
+<xf:title>{{ phrase('sylphian_library_delete_log_warning_title') }}</xf:title>
 
 <xf:form action="{{ link('logs/addon_logs/delete', null, {'log_id': $log.log_id}) }}" class="block" ajax="true">
     <div class="block-container">
         <div class="block-body block-row">
-            
-            <p>
-                {{ phrase('delete_addon_log_warning_text') }}
-            </p>
-            
+
+            <p>{{ phrase('sylphian_library_delete_log_warning_text') }}</p>
+
             <div class="block-container">
-                <h3 class="block-header">{{ phrase('addon_log_details') }} || {{ $log.log_id }}</h3>
+                <h3 class="block-header">{{ phrase_dynamic('sylphian_library_log_details_title', {'addon': $log.addon_id, 'id': $log.log_id}) }}</h3>
                 <div class="block-body">
                     <xf:formrow label="{{ phrase('log_type') }}">
-                        {{ $log.type }}
+                        <span class="label log-label log-type-{{ $log.type }}">
+                            <xf:fa icon="{{ 
+								$log.type == 'emergency' ? 'fa-exclamation-triangle' : 
+								($log.type == 'alert' ? 'fa-bell' : 
+								($log.type == 'critical' ? 'fa-times' : 
+								($log.type == 'error' ? 'fa-times' : 
+								($log.type == 'warning' ? 'fa-exclamation-triangle' : 
+								($log.type == 'notice' ? 'fa-info-circle' :
+								($log.type == 'info' ? 'fa-info-circle' : 'fa-bug')))))) }}" />
+                            {{ phrase_dynamic("sylphian_library_logType_" . $log.type) }}
+                        </span>
                     </xf:formrow>
 
-                    <xf:formrow label="{{ phrase('addon_id') }}">
+                    <xf:formrow label="{{ phrase('sylphian_library_addon_id') }}">
                         {{ $log.addon_id }}
                     </xf:formrow>
 
@@ -26,13 +34,13 @@
                     <xf:formrow label="{{ phrase('content') }}">
                         {{ $log.content }}
                     </xf:formrow>
-                
+
                     <xf:if is="$log.details">
                         <xf:formrow label="{{ phrase('details') }}">
                             <xf:textarearow value="{$formattedDetails}" readonly="true" rows="10" rowtype="fullWidth noLabel" />
                         </xf:formrow>
                     </xf:if>
-                
+
                     <xf:formrow label="{{ phrase('generated_by') }}">
                         <div class="contentRow contentRow--alignMiddle">
                             <div class="contentRow-figure">
@@ -50,9 +58,9 @@
                 </div>
             </div>
         </div>
-        
-        <xf:submitrow rowtype="simple" 
-                     icon="delete" 
-                     submit="{{ phrase('delete') }}" />
+
+        <xf:submitrow rowtype="simple"
+                      icon="delete"
+                      submit="{{ phrase('delete') }}" />
     </div>
 </xf:form>

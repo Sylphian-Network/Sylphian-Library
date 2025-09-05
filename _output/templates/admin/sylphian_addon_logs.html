@@ -1,21 +1,21 @@
-<xf:title>{{ phrase_dynamic('logs_for_addon', {'addon': $addon.title}) }}</xf:title>
+<xf:title>{{ phrase_dynamic('sylphian_library_logs_for_addon', {'addon': $addon.title}) }}</xf:title>
 
 <xf:pageaction>
     <xf:button href="{{ link('logs/addon_logs') }}">
-		<xf:fa icon="fa-arrow-left" />
-        {{ phrase('back_to_addons') }}
+        <xf:fa icon="fa-arrow-left" />
+        {{ phrase('sylphian_library_back_to_addons') }}
     </xf:button>
-	
-    <xf:button href="{{ link('logs/addon_logs/clear', null, {'addon_id': $addonId}) }}" 
+
+    <xf:button href="{{ link('logs/addon_logs/clear', null, {'addon_id': $addonId}) }}"
                overlay="true"
-			   icon="delete" >
-        {{ phrase('clear_logs') }}
+               icon="delete" >
+        {{ phrase_dynamic('sylphian_library_clear_addon_logs', {'addon': $addonId}) }}
     </xf:button>
 </xf:pageaction>
 
 <xf:if is="$logs is not empty">
     <div class="block">
-        <div class="block-container">            
+        <div class="block-container">
             <div class="block-body">
                 <xf:datalist>
                     <xf:datarow rowtype="header">
@@ -23,53 +23,56 @@
                         <xf:cell>{{ phrase('type') }}</xf:cell>
                         <xf:cell>{{ phrase('message') }}</xf:cell>
                         <xf:cell>{{ phrase('user') }}</xf:cell>
-						<xf:cell></xf:cell>
-						<xf:cell></xf:cell>
+                        <xf:cell></xf:cell>
+                        <xf:cell></xf:cell>
                     </xf:datarow>
                     <xf:foreach loop="$logs" value="$log">
                         <xf:datarow>
                             <xf:cell>{{ date($log.date, 'M j, Y g:i a') }}</xf:cell>
                             <xf:cell>
-                                <span class="label 
-                                    {{ $log.type == 'info' ? 'label--primary' : 
-                                      ($log.type == 'error' ? 'label--error' : 
-                                      ($log.type == 'warning' ? 'label--orange' : 
-									  ($log.type == 'debug' ? 'label--gray' : 'label--info'))) }}">
-                                    <xf:fa icon="{{ $log.type == 'info' ? 'fa-info-circle' : 
-                                              ($log.type == 'error' ? 'fa-times' : 
-                                              ($log.type == 'warning' ? 'fa-exclamation-triangle' : 'fa-bug')) }}" /> 
-                                    {{ phrase_dynamic($log.type) }}
-                                </span>
+								<span class="label log-label log-type-{{ $log.type }}">
+									<xf:fa icon="{{ 
+										$log.type == 'emergency' ? 'fa-exclamation-triangle' : 
+										($log.type == 'alert' ? 'fa-bell' : 
+										($log.type == 'critical' ? 'fa-times' : 
+										($log.type == 'error' ? 'fa-times' : 
+										($log.type == 'warning' ? 'fa-exclamation-triangle' : 
+										($log.type == 'notice' ? 'fa-info-circle' :
+										($log.type == 'info' ? 'fa-info-circle' : 'fa-bug')))))) }}" />
+									{{ phrase_dynamic("sylphian_library_logType_" . $log.type) }}
+								</span>
                             </xf:cell>
                             <xf:cell>{{ $log.content }}</xf:cell>
                             <xf:cell>
                                 <xf:if is="$log.User">
                                     <xf:username user="$log.User" />
-                                <xf:else />
+                                    <xf:else />
                                     {{ phrase('system') }}
                                 </xf:if>
                             </xf:cell>
-							<xf:action href="{{ link('logs/addon_logs/details', null, {'log_id': $log.log_id}) }}" 
-										overlay="true"
-										title="{{ phrase('view_addon_log_details') }}">
-								<xf:fa icon="fa-search" />
-							</xf:action>
+                            <xf:action href="{{ link('logs/addon_logs/details', null, {'log_id': $log.log_id}) }}"
+                                       overlay="true"
+                                       title="{{ phrase('sylphian_library_view_addon_log_details') }}">
+                                <xf:fa icon="fa-search" />
+                            </xf:action>
 
-							<xf:action href="{{ link('logs/addon_logs/delete', null, {'log_id': $log.log_id}) }}"
-										 overlay="true"
-										 title="{{ phrase('delete_addon_log') }}">
-								<xf:fa icon="fa-trash" />
-							</xf:action>
+                            <xf:action href="{{ link('logs/addon_logs/delete', null, {'log_id': $log.log_id}) }}"
+                                       overlay="true"
+                                       title="{{ phrase('sylphian_library_delete_addon_log') }}">
+                                <xf:fa icon="fa-trash" />
+                            </xf:action>
                         </xf:datarow>
                     </xf:foreach>
                 </xf:datalist>
             </div>
         </div>
-        
-        <xf:pagenav page="{$page}" perpage="{$perPage}" total="{$total}" 
-           link="logs/addon_logs/view&addon_id={$addonId}" 
-           wrapperclass="block-outer block-outer--after" />
+
+        <xf:pagenav page="{$page}" perpage="{$perPage}" total="{$total}"
+                    link="logs/addon_logs/view&addon_id={$addonId}"
+                    wrapperclass="block-outer block-outer--after" />
     </div>
-<xf:else />
-    <div class="blockMessage">{{ phrase('no_logs_for_addon', {'addon': $addon ? $addon.title : $addonId}) }}</div>
+    <xf:else />
+    <div class="blockMessage">{{ phrase('sylphian_library_no_logs_available', {'addon': $addon ? $addon.title : $addonId}) }}</div>
 </xf:if>
+
+<xf:css src="log_styles.less" />

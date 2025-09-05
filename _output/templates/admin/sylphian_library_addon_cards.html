@@ -1,4 +1,4 @@
-<xf:title>{{ phrase('available_addon_logs') }}</xf:title>
+<xf:title>{{ phrase('sylphian_library_available_addon_logs') }}</xf:title>
 
 <div class="addon-card-container">
     <xf:foreach loop="$addons" value="$addonInfo">
@@ -28,20 +28,32 @@
 					
 					<div class="addon-card-logs">
 						<div class="addon-card-log-total">
-							{{ phrase('log_entries') }}: {{ $addonInfo.log_count }}
+							{{ phrase('sylphian_library_log_entries') }}: {{ $addonInfo.log_count }}
 						</div>
 						<div class="addon-card-log-types">
-							<div class="addon-card-log-type addon-card-log-info">
-								{{ phrase('info') }}: {{ $addonInfo.type_counts.info }}
+							<div class="addon-card-log-type addon-card-log-emergency">
+								{{ phrase('sylphian_library_logType_emergency') }}: {{ $addonInfo.type_counts.emergency }}
 							</div>
-							<div class="addon-card-log-type addon-card-log-warning">
-								{{ phrase('warning') }}: {{ $addonInfo.type_counts.warning }}
+							<div class="addon-card-log-type addon-card-log-alert">
+								{{ phrase('sylphian_library_logType_alert') }}: {{ $addonInfo.type_counts.alert }}
+							</div>
+							<div class="addon-card-log-type addon-card-log-critical">
+								{{ phrase('sylphian_library_logType_critical') }}: {{ $addonInfo.type_counts.critical }}
 							</div>
 							<div class="addon-card-log-type addon-card-log-error">
-								{{ phrase('error') }}: {{ $addonInfo.type_counts.error }}
+								{{ phrase('sylphian_library_logType_error') }}: {{ $addonInfo.type_counts.error }}
+							</div>
+							<div class="addon-card-log-type addon-card-log-warning">
+								{{ phrase('sylphian_library_logType_warning') }}: {{ $addonInfo.type_counts.warning }}
+							</div>
+							<div class="addon-card-log-type addon-card-log-notice">
+								{{ phrase('sylphian_library_logType_notice') }}: {{ $addonInfo.type_counts.notice }}
+							</div>
+							<div class="addon-card-log-type addon-card-log-info">
+								{{ phrase('sylphian_library_logType_info') }}: {{ $addonInfo.type_counts.info }}
 							</div>
 							<div class="addon-card-log-type addon-card-log-debug">
-								{{ phrase('debug') }}: {{ $addonInfo.type_counts.debug }}
+								{{ phrase('sylphian_library_logType_debug') }}: {{ $addonInfo.type_counts.debug }}
 							</div>
 						</div>
 					</div>
@@ -51,4 +63,5 @@
     </xf:foreach>
 </div>
 
+<xf:css src="log_styles.less" />
 <xf:css src="addon_cards.less" />

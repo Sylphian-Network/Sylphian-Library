@@ -1,5 +1,8 @@
 {
-    "sylphian_addon_logs.json": {
-        "hash": "dc98c187f8732a4bc2c7391b06c0199b"
+    "sylphian_library_addons_addon_logs.json": {
+        "hash": "c5b6f867ae21afeba621ebfccdc749b8"
+    },
+    "sylphian_library_logs_addon_logs.json": {
+        "hash": "6dc1586516657349293d2c686d91dc6c"
     }
 }

@@ -1,32 +1,37 @@
 {
     "admin/addon_cards.less": {
-        "version_id": 1000110,
-        "version_string": "1.0.1 Alpha",
-        "hash": "f086b75f66dab9f063b9cec2d9319f68"
+        "version_id": 1000170,
+        "version_string": "1.0.1",
+        "hash": "d8ced00a0eb75d5130593f6946ef64a1"
+    },
+    "admin/log_styles.less": {
+        "version_id": 1000170,
+        "version_string": "1.0.1",
+        "hash": "4d4642f69d985afa8854cdbf538d9998"
     },
     "admin/sylphian_addon_logs.html": {
-        "version_id": 1000110,
-        "version_string": "1.0.1 Alpha",
-        "hash": "ba14d303c66bb40595c5a736c0973ddc"
+        "version_id": 1000170,
+        "version_string": "1.0.1",
+        "hash": "b62d42ea3b25b01f38ddd1353c780a34"
     },
     "admin/sylphian_library_addon_cards.html": {
-        "version_id": 1000110,
-        "version_string": "1.0.1 Alpha",
-        "hash": "e24fc2a4de025f2361837e89fce75f02"
+        "version_id": 1000170,
+        "version_string": "1.0.1",
+        "hash": "5c90cc0cb0c5906c87646765c1f12e79"
     },
     "admin/sylphian_library_log_delete.html": {
-        "version_id": 1000010,
-        "version_string": "1.0.0 Alpha",
-        "hash": "9e4d0efa88d251f32cf3fdeaeea4d197"
+        "version_id": 1000170,
+        "version_string": "1.0.1",
+        "hash": "8454a7643e4555ca4982ea674aa7ce41"
     },
     "admin/sylphian_library_log_details.html": {
-        "version_id": 1000010,
-        "version_string": "1.0.0 Alpha",
-        "hash": "423a9bcfad9e421be7c51f75ee8c8a36"
+        "version_id": 1000170,
+        "version_string": "1.0.1",
+        "hash": "60daa2361fb1929decf004d2f5bf5e70"
     },
     "admin/sylphian_library_logs_clear.html": {
-        "version_id": 1000110,
-        "version_string": "1.0.1 Alpha",
-        "hash": "a90c64664cb0601ed0217a45a2f0de41"
+        "version_id": 1000170,
+        "version_string": "1.0.1",
+        "hash": "fc8eaa6505735da77edf972421389fd7"
     }
 }
