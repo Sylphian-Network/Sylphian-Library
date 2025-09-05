@@ -4,6 +4,7 @@ namespace Sylphian\Library\XF\Admin\Controller;
 
 use Sylphian\Library\Repository\LogRepository;
 use XF\Mvc\Reply\AbstractReply;
+use XF\Mvc\Reply\Error;
 use XF\Mvc\Reply\View;
 
 /**
@@ -26,12 +27,12 @@ class IndexController extends XFCP_IndexController
 				/** @var LogRepository $logRepo */
 				$logRepo = $this->repository('Sylphian\Library:Log');
 
-                $logCounts = $logRepo->getHighPriorityLogCounts();
+				$logCounts = $logRepo->getHighPriorityLogCounts();
 
-                $viewParams = $reply->getParams();
-                $viewParams['addonErrorLogs'] = (bool)$logCounts;
-                $viewParams['addonErrorLogCounts'] = $logCounts;
-                $reply->setParams($viewParams);
+				$viewParams = $reply->getParams();
+				$viewParams['addonErrorLogs'] = (bool) $logCounts;
+				$viewParams['addonErrorLogCounts'] = $logCounts;
+				$reply->setParams($viewParams);
 			}
 		}
 

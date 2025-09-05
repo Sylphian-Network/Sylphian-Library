@@ -1,4 +1,16 @@
 {
+    "admin_navigation.sylphian_library_addons_addon_logs.txt": {
+        "global_cache": false,
+        "version_id": 1000210,
+        "version_string": "1.0.2",
+        "hash": "956e6a6cd081267ad653b87c4c7afbb1"
+    },
+    "admin_navigation.sylphian_library_logs_addon_logs.txt": {
+        "global_cache": false,
+        "version_id": 1000210,
+        "version_string": "1.0.2",
+        "hash": "956e6a6cd081267ad653b87c4c7afbb1"
+    },
     "cron_entry.addonLogCleanup.txt": {
         "global_cache": false,
         "version_id": 1000170,

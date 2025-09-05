@@ -6,6 +6,7 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Sylphian\Library\Entity\AddonLog;
 use XF\Mvc\Entity\Manager;
+use XF\Mvc\Reply\Error;
 use XF\PrintableException;
 
 class AddonLogger implements LoggerInterface
@@ -40,6 +41,8 @@ class AddonLogger implements LoggerInterface
 	/**
 	 * Action must be taken immediately.
 	 *
+	 * Example: Entire website down, database unavailable, etc.
+	 *
 	 * @param string $message
 	 * @param array $context
 	 */
@@ -51,6 +54,8 @@ class AddonLogger implements LoggerInterface
 	/**
 	 * Critical conditions.
 	 *
+	 * Example: Application component unavailable, unexpected exception.
+	 *
 	 * @param string $message
 	 * @param array $context
 	 */
@@ -60,7 +65,8 @@ class AddonLogger implements LoggerInterface
 	}
 
 	/**
-	 * Runtime errors that do not require immediate action.
+	 * Runtime errors that do not require immediate action but should typically
+	 * be logged and monitored.
 	 *
 	 * @param string $message
 	 * @param array $context
@@ -72,6 +78,9 @@ class AddonLogger implements LoggerInterface
 
 	/**
 	 * Exceptional occurrences that are not errors.
+	 *
+	 * Example: Use of deprecated APIs, poor use of an API, undesirable things
+	 * that are not necessarily wrong.
 	 *
 	 * @param string $message
 	 * @param array $context
@@ -124,6 +133,12 @@ class AddonLogger implements LoggerInterface
 	public function log($level, $message, array $context = []): void
 	{
 		$addonId = $context['addon_id'] ?? $this->defaultAddonId ?? $this->determineAddonId();
+
+		$addon = $this->em->find('XF:AddOn', $addonId);
+		if (!$addon)
+		{
+			$addonId = 'XF';
+		}
 
 		$details = $context;
 		unset($details['addon_id']);
@@ -180,6 +195,24 @@ class AddonLogger implements LoggerInterface
 	}
 
 	/**
+	 * Logs an error message and returns an Error reply
+	 *
+	 * Used in controllers to save calling a log and return an error reply
+	 *
+	 * @param \Stringable|string $error The error message to log and return
+	 * @param array $context Additional context data for the log entry
+	 * @param int $code HTTP response code
+	 *
+	 * @return Error
+	 */
+	public function loggedError(\Stringable|string $error, array $context = [], int $code = 200): Error
+	{
+		$this->log(LogLevel::ERROR, $error, $context);
+
+		return new Error($error, $code);
+	}
+
+	/**
 	 * Interpolates context values into the message placeholders.
 	 *
 	 * @param string $message
@@ -203,7 +236,7 @@ class AddonLogger implements LoggerInterface
 	/**
 	 * Determine the addon ID from the call stack
 	 *
-	 * If logs are created in the library, the addon id will need to be manually specified.
+	 * Note: If logs are created in the library, the addon id will need to be manually specified.
 	 *
 	 * @return string The determined addon ID (fallback to 'XF' if couldn't determine)
 	 */

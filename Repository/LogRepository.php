@@ -2,21 +2,11 @@
 
 namespace Sylphian\Library\Repository;
 
-use Sylphian\Library\Logger\AddonLogger;
+use Sylphian\Library\Logger\Logger;
 use XF\Mvc\Entity\Repository;
 
 class LogRepository extends Repository
 {
-	/**
-	 * Get an instance of AddonLogger for internal use
-	 *
-	 * @return AddonLogger
-	 */
-	private function getAddonLogger(): AddonLogger
-	{
-		return new AddonLogger($this->em);
-	}
-
 	/**
 	 * Get logs for a specific addon
 	 *
@@ -47,32 +37,33 @@ class LogRepository extends Repository
 			->total();
 	}
 
-    /**
-     * Fetches high-priority log counts
-     *
-     * The types of errors it checks are 'emergency', 'critical', 'alert', 'error'
-     *
-     * @return array|null an array of counts or null if no matching these types are found
-     */
-    public function getHighPriorityLogCounts(): ?array
-    {
-        $finder = $this->finder('Sylphian\Library:AddonLog')
-            ->where('type', ['emergency', 'critical', 'alert', 'error']);
+	/**
+	 * Fetches high-priority log counts
+	 *
+	 * The types of errors it checks are 'emergency', 'critical', 'alert', 'error'
+	 *
+	 * @return array|null an array of counts or null if no matching these types are found
+	 */
+	public function getHighPriorityLogCounts(): ?array
+	{
+		$finder = $this->finder('Sylphian\Library:AddonLog')
+			->where('type', ['emergency', 'critical', 'alert', 'error']);
 
-        if ($finder->total() <= 0) {
-            return null;
-        }
+		if ($finder->total() <= 0)
+		{
+			return null;
+		}
 
-        return [
-            'emergency_count' => (clone $finder)->where('type', 'emergency')->total(),
-            'critical_count'  => (clone $finder)->where('type', 'critical')->total(),
-            'alert_count'     => (clone $finder)->where('type', 'alert')->total(),
-            'error_count'     => (clone $finder)->where('type', 'error')->total(),
-        ];
-    }
+		return [
+			'emergency_count' => (clone $finder)->where('type', 'emergency')->total(),
+			'critical_count'  => (clone $finder)->where('type', 'critical')->total(),
+			'alert_count'     => (clone $finder)->where('type', 'alert')->total(),
+			'error_count'     => (clone $finder)->where('type', 'error')->total(),
+		];
+	}
 
 
-    /**
+	/**
 	 * Get all unique addons with their log counts
 	 *
 	 * @return array An array of addons with their log counts
@@ -152,8 +143,7 @@ class LogRepository extends Repository
 	 */
 	public function clearLogsForAddon(string $addonId): int
 	{
-		$db = $this->db();
-		return $db->delete('xf_addon_log', 'addon_id = ?', $addonId);
+		return $this->db()->delete('xf_addon_log', 'addon_id = ?', $addonId);
 	}
 
 	/**
@@ -212,20 +202,15 @@ class LogRepository extends Repository
 			{
 				$cutOffDate = date('Y-m-d H:i:s', $cutOff);
 
-				$logger = $this->getAddonLogger();
-				$logger->debug('Add-on logs pruned successfully', [
+				Logger::withAddonId('Sylphian/Library')->debug('Add-on logs pruned successfully', [
 					'deleted_records' => $deletedCount,
 					'cutoff_date' => $cutOffDate,
 					'pruned_date' => date('Y-m-d H:i:s'),
-					'addon_id' => 'Sylphian/Library',
 				]);
 			}
 			else
 			{
-				$logger = $this->getAddonLogger();
-				$logger->debug('No add-on logs needed pruning', [
-					'addon_id' => 'Sylphian/Library',
-				]);
+				Logger::withAddonId('Sylphian/Library')->debug('No add-on logs needed pruning');
 			}
 		}
 		else

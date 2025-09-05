@@ -1,0 +1,9 @@
+{
+    "event_id": "app_setup",
+    "execute_order": 10,
+    "callback_class": "Sylphian\\Library\\AppSetup",
+    "callback_method": "appSetup",
+    "active": true,
+    "hint": "Register addonLogger service",
+    "description": "Registers a factory for the addonLogger service, allowing add-ons to access a dedicated logger instance."
+}
