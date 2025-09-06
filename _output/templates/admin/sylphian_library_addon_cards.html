@@ -31,30 +31,46 @@
 							{{ phrase('sylphian_library_log_entries') }}: {{ $addonInfo.log_count }}
 						</div>
 						<div class="addon-card-log-types">
-							<div class="addon-card-log-type addon-card-log-emergency">
-								{{ phrase('sylphian_library_logType_emergency') }}: {{ $addonInfo.type_counts.emergency }}
-							</div>
-							<div class="addon-card-log-type addon-card-log-alert">
-								{{ phrase('sylphian_library_logType_alert') }}: {{ $addonInfo.type_counts.alert }}
-							</div>
-							<div class="addon-card-log-type addon-card-log-critical">
-								{{ phrase('sylphian_library_logType_critical') }}: {{ $addonInfo.type_counts.critical }}
-							</div>
-							<div class="addon-card-log-type addon-card-log-error">
-								{{ phrase('sylphian_library_logType_error') }}: {{ $addonInfo.type_counts.error }}
-							</div>
-							<div class="addon-card-log-type addon-card-log-warning">
-								{{ phrase('sylphian_library_logType_warning') }}: {{ $addonInfo.type_counts.warning }}
-							</div>
-							<div class="addon-card-log-type addon-card-log-notice">
-								{{ phrase('sylphian_library_logType_notice') }}: {{ $addonInfo.type_counts.notice }}
-							</div>
-							<div class="addon-card-log-type addon-card-log-info">
-								{{ phrase('sylphian_library_logType_info') }}: {{ $addonInfo.type_counts.info }}
-							</div>
-							<div class="addon-card-log-type addon-card-log-debug">
-								{{ phrase('sylphian_library_logType_debug') }}: {{ $addonInfo.type_counts.debug }}
-							</div>
+							<xf:if is="$addonInfo.type_counts.emergency">
+								<div class="addon-card-log-type addon-card-log-emergency">
+									{{ phrase('sylphian_library_logType_emergency') }}: {{ $addonInfo.type_counts.emergency }}
+								</div>
+							</xf:if>
+							<xf:if is="$addonInfo.type_counts.alert">
+								<div class="addon-card-log-type addon-card-log-alert">
+									{{ phrase('sylphian_library_logType_alert') }}: {{ $addonInfo.type_counts.alert }}
+								</div>
+							</xf:if>
+							<xf:if is="$addonInfo.type_counts.critical">
+								<div class="addon-card-log-type addon-card-log-critical">
+									{{ phrase('sylphian_library_logType_critical') }}: {{ $addonInfo.type_counts.critical }}
+								</div>
+							</xf:if>
+							<xf:if is="$addonInfo.type_counts.error">
+								<div class="addon-card-log-type addon-card-log-error">
+									{{ phrase('sylphian_library_logType_error') }}: {{ $addonInfo.type_counts.error }}
+								</div>
+							</xf:if>
+							<xf:if is="$addonInfo.type_counts.warning">
+								<div class="addon-card-log-type addon-card-log-warning">
+									{{ phrase('sylphian_library_logType_warning') }}: {{ $addonInfo.type_counts.warning }}
+								</div>
+							</xf:if>
+							<xf:if is="$addonInfo.type_counts.notice">
+								<div class="addon-card-log-type addon-card-log-notice">
+									{{ phrase('sylphian_library_logType_notice') }}: {{ $addonInfo.type_counts.notice }}
+								</div>
+							</xf:if>
+							<xf:if is="$addonInfo.type_counts.info">
+								<div class="addon-card-log-type addon-card-log-info">
+									{{ phrase('sylphian_library_logType_info') }}: {{ $addonInfo.type_counts.info }}
+								</div>
+							</xf:if>
+							<xf:if is="$addonInfo.type_counts.debug">
+								<div class="addon-card-log-type addon-card-log-debug">
+									{{ phrase('sylphian_library_logType_debug') }}: {{ $addonInfo.type_counts.debug }}
+								</div>
+							</xf:if>
 						</div>
 					</div>
                 </div>
