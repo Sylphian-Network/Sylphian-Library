@@ -28,6 +28,18 @@ class AddonLogger implements LoggerInterface
 	}
 
 	/**
+	 * Creates a new AddonLogger instance with proper class extension support
+	 *
+	 * @param string|null $defaultAddonId Default add-on ID if not specified in context
+	 * @return static
+	 */
+	public static function create(?string $defaultAddonId = null): static
+	{
+		$loggerClass = \XF::extendClass(self::class);
+		return new $loggerClass(\XF::em(), $defaultAddonId);
+	}
+
+	/**
 	 * System is unusable.
 	 *
 	 * @param string $message

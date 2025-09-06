@@ -15,7 +15,7 @@ final class Logger
 	 */
 	public static function withAddonId(string $addonId): AddonLogger
 	{
-		return \XF::app()->container()->create('addonLogger', $addonId);
+		return AddonLogger::create($addonId);
 	}
 
 	/**
@@ -28,8 +28,7 @@ final class Logger
 	 */
 	public static function log(mixed $level, string|\Stringable $message, array $context = []): void
 	{
-		$logger = \XF::app()->container()->create('addonLogger', null);
-
+		$logger = AddonLogger::create();
 		$logger->log($level, $message, $context);
 	}
 

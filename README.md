@@ -115,17 +115,16 @@ While the static Logger class provides the most convenient way to use the loggin
 
 #### Creating an AddonLogger Instance
 
-You can create an instance of the `AddonLogger` class directly:
+You can create an instance of the `AddonLogger` class using the static factory method:
 ```php
 use Sylphian\Library\Logger\AddonLogger;
 
-$logger = new AddonLogger(\XF::em(), 'Vendor/Addon');
+$logger = AddonLogger::create('Vendor/Addon');
 ```
 
-The constructor takes two parameters:
+The method takes an optional parameter:
 
-1. The entity manager instance
-2. (Optional) A default add-on ID to use for all logs from this instance
+1. An add-on ID to use for all logs from this instance
 
 #### Using the Logger Instance
 
