@@ -11,6 +11,12 @@
         "version_string": "1.0.2",
         "hash": "956e6a6cd081267ad653b87c4c7afbb1"
     },
+    "admin_permission.viewAddonLogs.txt": {
+        "global_cache": false,
+        "version_id": 1000310,
+        "version_string": "1.0.3 Alpha",
+        "hash": "14c13761af23b245140aad3867eb2d98"
+    },
     "cron_entry.addonLogCleanup.txt": {
         "global_cache": false,
         "version_id": 1000170,
