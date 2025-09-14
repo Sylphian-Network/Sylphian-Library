@@ -13,6 +13,7 @@ Sylphian Library is a utility add-on for XenForo that provides centralised loggi
         - [Specifying Add-on ID](#specifying-add-on-id)
     - [Alternative Usage](#alternative-usage)
     - [Automatic Add-on Detection](#automatic-add-on-detection)
+    - [Adding a permission check for your add-on logs](#adding-a-permission-check-for-your-add-on-logs)
 - [Preview](#preview)
 
 ## Requirements
@@ -160,6 +161,19 @@ class ExampleFile
     }
 }
 ```
+
+### Adding a permission check for your add-on logs
+
+To add a permission check for your add-on logs, it's very simple. 
+You need to go to `Admin Control Panel -> Development -> Administrator permissions -> Add admin permission`
+Input the details:
+
+- Permission ID: `sylLib_vendor_addon`, if you can't fit your entire addon id in, just type as much as you can. So for example if your addon id is `Addon/LongExampleAddonId`, you would type `sylLib_addon_longexamp`.
+- Title: `Vendor/Addon - addon logs`
+- Display order: `15050+` (or whatever you want, just make sure it's higher than `15050` so it appears below the main Sylphian Library permission)
+- Add-on: `Vendor/Addon` (your add-on id)
+
+Then save the permission. Now only administrators with that permission will be able to view your add-on logs.
 
 ## Preview
 <details>

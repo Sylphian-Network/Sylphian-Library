@@ -154,10 +154,10 @@ class AddonLogs extends AbstractController
 			return $this->notFound();
 		}
 
-        if (!AddonPermissionHandler::canViewAddonLogs(null, $addonId))
-        {
-            return $this->noPermission();
-        }
+		if (!AddonPermissionHandler::canViewAddonLogs(null, $addonId))
+		{
+			return $this->noPermission();
+		}
 
 		$addon = $this->em()->find('XF:AddOn', $addonId);
 
