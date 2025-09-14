@@ -4,7 +4,6 @@ namespace Sylphian\Library\XF\Admin\Controller;
 
 use Sylphian\Library\Repository\LogRepository;
 use XF\Mvc\Reply\AbstractReply;
-use XF\Mvc\Reply\Error;
 use XF\Mvc\Reply\View;
 
 /**

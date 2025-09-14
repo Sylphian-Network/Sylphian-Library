@@ -2,6 +2,7 @@
 
 namespace Sylphian\Library\Admin\Controller;
 
+use Sylphian\Library\AddonPermissionHandler;
 use Sylphian\Library\Entity\AddonLog;
 use Sylphian\Library\Repository\LogRepository;
 use XF\Admin\Controller\AbstractController;
@@ -46,6 +47,11 @@ class AddonLogs extends AbstractController
 			return $this->notFound();
 		}
 
+		if (!AddonPermissionHandler::canViewAddonLogs(null, $addonId))
+		{
+			return $this->noPermission();
+		}
+
 		$page = $this->filterPage();
 		$perPage = 20;
 
@@ -78,13 +84,18 @@ class AddonLogs extends AbstractController
 			return $this->notFound();
 		}
 
+		/** @var AddonLog $log */
 		$log = $this->em()->find('Sylphian\Library:AddonLog', $logId);
 		if (!$log)
 		{
 			return $this->notFound();
 		}
 
-		/** @var AddonLog $log */
+		if (!AddonPermissionHandler::canViewAddonLogs(null, $log->addon_id))
+		{
+			return $this->noPermission();
+		}
+
 		$formattedDetails = $log->details ? json_encode($log->details, JSON_PRETTY_PRINT) : '';
 
 		$viewParams = [
@@ -107,13 +118,18 @@ class AddonLogs extends AbstractController
 			return $this->notFound();
 		}
 
+		/** @var AddonLog $log */
 		$log = $this->em()->find('Sylphian\Library:AddonLog', $logId);
 		if (!$log)
 		{
 			return $this->notFound();
 		}
 
-		/** @var AddonLog $log */
+		if (!AddonPermissionHandler::canViewAddonLogs(null, $log->addon_id))
+		{
+			return $this->noPermission();
+		}
+
 		$formattedDetails = $log->details ? json_encode($log->details, JSON_PRETTY_PRINT) : '';
 
 		if ($this->isPost())
@@ -136,6 +152,11 @@ class AddonLogs extends AbstractController
 		if (!$addonId)
 		{
 			return $this->notFound();
+		}
+
+		if (!AddonPermissionHandler::canViewAddonLogs(null, $addonId))
+		{
+			return $this->noPermission();
 		}
 
 		$addon = $this->em()->find('XF:AddOn', $addonId);

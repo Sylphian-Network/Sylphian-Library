@@ -2,6 +2,7 @@
 
 namespace Sylphian\Library\Repository;
 
+use Sylphian\Library\AddonPermissionHandler;
 use Sylphian\Library\Logger\Logger;
 use XF\Mvc\Entity\Repository;
 
@@ -100,6 +101,11 @@ class LogRepository extends Repository
 		$result = [];
 		foreach ($addonIds AS $addonId)
 		{
+			if (!AddonPermissionHandler::canViewAddonLogs(null, $addonId))
+			{
+				continue;
+			}
+
 			$typeCounts = [
 				'emergency' => $addonCounts[$addonId]['emergency_count'],
 				'alert' => $addonCounts[$addonId]['alert_count'],
