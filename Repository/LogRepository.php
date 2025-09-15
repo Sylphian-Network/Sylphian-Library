@@ -4,38 +4,117 @@ namespace Sylphian\Library\Repository;
 
 use Sylphian\Library\AddonPermissionHandler;
 use Sylphian\Library\Logger\Logger;
+use XF\Mvc\Entity\Finder;
 use XF\Mvc\Entity\Repository;
 
 class LogRepository extends Repository
 {
 	/**
-	 * Get logs for a specific addon
+	 * Get logs for a specific addon with optional filtering
 	 *
 	 * @param string $addonId The addon ID
 	 * @param int|null $page
 	 * @param int|null $perPage
+	 * @param array $filters Optional filters: start_date, end_date, type, user_id
 	 * @return array
 	 */
-	public function getLogsForAddon(string $addonId, ?int $page = 1, ?int $perPage = 20): array
+	public function getLogsForAddon(string $addonId, ?int $page = 1, ?int $perPage = 20, array $filters = []): array
 	{
-		$finder = $this->finder('Sylphian\Library:AddonLog')
-			->where('addon_id', $addonId)
+		$finder = $this->getAddonLogFinder($addonId, $filters)
 			->order('date', 'DESC');
 
 		return $finder->limitByPage($page, $perPage)->fetch()->toArray();
 	}
 
 	/**
-	 * Get the total count of logs for an addon
+	 * Get all unique log types and users for an addon
 	 *
 	 * @param string $addonId The addon ID
+	 * @return array
+	 */
+	public function getAllAddonLogTypesAndUsers(string $addonId): array
+	{
+		$finder = $this->finder('Sylphian\Library:AddonLog')
+			->where('addon_id', $addonId);
+
+		$types = [];
+		$users = [];
+		$userIds = [];
+
+		foreach ($finder->fetch() AS $log)
+		{
+			$types[$log->type] = $log->type;
+
+			if ($log->user_id)
+			{
+				$userIds[$log->user_id] = $log->user_id;
+			}
+			else
+			{
+				$users['System'] = 'System';
+			}
+		}
+
+		if (!empty($userIds))
+		{
+			$userFinder = $this->finder('XF:User')
+				->whereIds($userIds);
+
+			foreach ($userFinder->fetch() AS $user)
+			{
+				$users[$user->user_id] = $user->username;
+			}
+		}
+
+		return [
+			'types' => $types,
+			'users' => $users,
+		];
+	}
+
+	/**
+	 * Get the total count of logs for an addon with optional filtering
+	 *
+	 * @param string $addonId The addon ID
+	 * @param array $filters Optional filters: start_date, end_date, type, user_id
 	 * @return int
 	 */
-	public function getLogCountForAddon(string $addonId): int
+	public function getLogCountForAddon(string $addonId, array $filters = []): int
 	{
-		return $this->finder('Sylphian\Library:AddonLog')
-			->where('addon_id', $addonId)
-			->total();
+		$finder = $this->getAddonLogFinder($addonId, $filters);
+		return $finder->total();
+	}
+
+	private function getAddonLogFinder(string $addonId, array $filters = []): Finder
+	{
+		$finder = $this->finder('Sylphian\Library:AddonLog')
+			->where('addon_id', $addonId);
+
+		if (!empty($filters['start_date']))
+		{
+			$finder->where('date', '>=', $filters['start_date']);
+		}
+		if (!empty($filters['end_date']))
+		{
+			$finder->where('date', '<=', $filters['end_date']);
+		}
+		if (!empty($filters['type']) && $filters['type'] !== 'any')
+		{
+			$finder->where('type', $filters['type']);
+		}
+		if (!empty($filters['user_id']))
+		{
+			if ($filters['user_id'] === 'System' || $filters['user_id'] === 'system')
+			{
+				$finder->where('user_id', null);
+			}
+			else if ($filters['user_id'] !== '0' && $filters['user_id'] !== 'any')
+			{
+				$finder->where('user_id', $filters['user_id']);
+			}
+		}
+
+		return $finder;
 	}
 
 	/**
