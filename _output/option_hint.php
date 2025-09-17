@@ -11,8 +11,8 @@
 namespace XF;
 
 /**
- * @property bool|null $addonLogCleanupDebug Addon logs cleanup debug
  * @property non-negative-int|null $addonLogLength Addon log length
+ * @property string|null $sylphian_library_min_log_level Minimum Log Level
  */
 class Options
 {

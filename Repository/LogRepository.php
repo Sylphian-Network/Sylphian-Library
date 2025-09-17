@@ -275,36 +275,23 @@ class LogRepository extends Repository
 		}
 
 		$cutOff = $cutOff ?? $this->getCutOff();
-		$debugEnabled = $this->options()->addonLogCleanupDebug ?? false;
+		$deletedCount = $this->db()->fetchOne('SELECT COUNT(*) FROM xf_addon_log WHERE date < ?', $cutOff);
 
-		if ($debugEnabled)
+		$this->db()->delete('xf_addon_log', 'date < ?', $cutOff);
+
+		if ($deletedCount > 0)
 		{
-			$deletedCount = $this->db()->fetchOne('SELECT COUNT(*) FROM xf_addon_log WHERE date < ?', $cutOff);
+			$cutOffDate = date('Y-m-d H:i:s', $cutOff);
 
-			$this->db()->delete('xf_addon_log', 'date < ?', $cutOff);
-
-			if ($deletedCount > 0)
-			{
-				$cutOffDate = date('Y-m-d H:i:s', $cutOff);
-
-				Logger::withAddonId('Sylphian/Library')->debug('Add-on logs pruned successfully', [
-					'deleted_records' => $deletedCount,
-					'cutoff_date' => $cutOffDate,
-					'pruned_date' => date('Y-m-d H:i:s'),
-				]);
-			}
-			else
-			{
-				Logger::withAddonId('Sylphian/Library')->debug('No add-on logs needed pruning');
-			}
+			Logger::withAddonId('Sylphian/Library')->debug('Add-on logs pruned successfully', [
+				'deleted_records' => $deletedCount,
+				'cutoff_date' => $cutOffDate,
+				'pruned_date' => date('Y-m-d H:i:s'),
+			]);
 		}
 		else
 		{
-			$this->db()->delete(
-				'xf_addon_log',
-				'date < ?',
-				$cutOff
-			);
+			Logger::withAddonId('Sylphian/Library')->debug('No add-on logs needed pruning');
 		}
 	}
 }
