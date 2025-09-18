@@ -59,8 +59,8 @@ class AddonLogs extends AbstractController
 		$filters = [
 			'start_date' => $this->filter('start_date', 'datetime'),
 			'end_date' => $this->filter('end_date', 'datetime'),
-			'type' => $this->filter('type', 'str'),
-			'user_id' => $this->filter('user_id', 'str'),
+			'type' => $this->filter('type', 'array'),
+			'user_id' => $this->filter('user_id', 'array'),
 		];
 
 		/** @var LogRepository $logRepo */
@@ -70,8 +70,8 @@ class AddonLogs extends AbstractController
 
 		$filtersApplied = !empty($filters['start_date']) ||
 			!empty($filters['end_date']) ||
-			(!empty($filters['type']) && $filters['type'] !== 'any') ||
-			(!empty($filters['user_id']) && $filters['user_id'] !== '0');
+			(!empty($filters['type']) && !(is_array($filters['type']) && in_array('any', $filters['type']))) ||
+			(!empty($filters['user_id']) && !(is_array($filters['user_id']) && (in_array('0', $filters['user_id']) || in_array('any', $filters['user_id']))));
 
 		if ($filtersApplied)
 		{
@@ -84,7 +84,6 @@ class AddonLogs extends AbstractController
 			$total = $logRepo->getLogCountForAddon($addonId);
 
 		}
-
 
 		$addon = $this->em()->find('XF:AddOn', $addonId);
 
@@ -166,7 +165,7 @@ class AddonLogs extends AbstractController
 		if ($this->isPost())
 		{
 			$log->delete();
-			return $this->redirect('admin.php?logs/addon_logs/view&addon_id=' . urlencode($log->addon_id));
+			return $this->redirect($this->buildLink('logs/addon_logs/view', null, ['addon_id' => $log->addon_id]));
 		}
 
 		$viewParams = [

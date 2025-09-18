@@ -98,19 +98,47 @@ class LogRepository extends Repository
 		{
 			$finder->where('date', '<=', $filters['end_date']);
 		}
-		if (!empty($filters['type']) && $filters['type'] !== 'any')
+		if (!empty($filters['type']))
 		{
-			$finder->where('type', $filters['type']);
+			$type = $filters['type'];
+
+			if (is_array($type) && !in_array('any', $type))
+			{
+				$typeConditions = [];
+				foreach ($type AS $t)
+				{
+					$typeConditions[] = ['type', $t];
+				}
+
+				if (count($typeConditions) > 0)
+				{
+					$finder->whereOr($typeConditions);
+				}
+			}
 		}
 		if (!empty($filters['user_id']))
 		{
-			if ($filters['user_id'] === 'System' || $filters['user_id'] === 'system')
+			$userId = $filters['user_id'];
+
+			if (is_array($userId) && !in_array('0', $userId) && !in_array('any', $userId))
 			{
-				$finder->where('user_id', null);
-			}
-			else if ($filters['user_id'] !== '0' && $filters['user_id'] !== 'any')
-			{
-				$finder->where('user_id', $filters['user_id']);
+				$userConditions = [];
+				foreach ($userId AS $uid)
+				{
+					if ($uid === 'System' || $uid === 'system')
+					{
+						$userConditions[] = ['user_id', null];
+					}
+					else
+					{
+						$userConditions[] = ['user_id', $uid];
+					}
+				}
+
+				if (count($userConditions) > 0)
+				{
+					$finder->whereOr($userConditions);
+				}
 			}
 		}
 

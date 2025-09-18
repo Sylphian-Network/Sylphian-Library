@@ -32,20 +32,20 @@
                     <xf:datarow>
                         <xf:cell width="10%">Start date:</xf:cell>
                         <xf:cell width="20%"><xf:datetimeinput name="start_date" value="{$filters.start_date}" /></xf:cell>
-                        <xf:cell width="41%">
-                            <xf:select name="type" value="{$filters.type}">
+                        <xf:cell width="41%" rowspan="2">
+                            <xf:select name="type" value="{$filters.type}" multiple="true">
                                 <xf:option value="any">{{ phrase('any') }}</xf:option>
                                 <xf:options source="$filterBits.types" />
                             </xf:select>
                         </xf:cell>
-                        <xf:cell>
+                        <xf:cell rowspan="2">
                             <xf:select name="user_id" value="{$filters.user_id}" class="input--inline">
                                 <xf:option value="0">{{ phrase('any') }}</xf:option>
                                 <xf:options source="$filterBits.users" />
                             </xf:select>
                         </xf:cell>
-                        <xf:cell></xf:cell>
-                        <xf:cell></xf:cell>
+                        <xf:cell rowspan="2"></xf:cell>
+                        <xf:cell ></xf:cell>
                     </xf:datarow>
                     
                     <xf:datarow>
@@ -113,9 +113,17 @@
             </div>
         </div>
 
-        <xf:pagenav page="{$page}" perpage="{$perPage}" total="{$total}"
-                link="logs/addon_logs/view&addon_id={$addonId}&start_date={$filters.start_date}&end_date={$filters.end_date}&type={$filters.type}&user_id={$filters.user_id}"
-                wrapperclass="block-outer block-outer--after" />
+		<xf:pagenav page="{$page}" perpage="{$perPage}" total="{$total}"
+				link="logs/addon_logs/view"
+				params="{{ {
+					'addon_id': $addonId,
+					'start_date': $filters.start_date,
+					'end_date': $filters.end_date,
+					'type': $filters.type,
+					'user_id': $filters.user_id
+				} }}"
+				wrapperclass="block-outer block-outer--after" />
+	
     <xf:else />
     <div class="blockMessage">{{ phrase('sylphian_library_no_logs_available', {'addon': $addon ? $addon.title : $addonId}) }}</div>
 </xf:if>
