@@ -1,0 +1,13 @@
+{
+    "edit_format": "select",
+    "edit_format_params": "debug=Debug\ninfo=Info\nnotice=Notice\nwarning=Warning\nerror=Error\ncritical=Critical\nalert=Alert\nemergency=Emergency",
+    "data_type": "string",
+    "sub_options": [],
+    "validation_class": "",
+    "validation_method": "",
+    "advanced": false,
+    "default_value": "debug",
+    "relations": {
+        "logging": 1010
+    }
+}

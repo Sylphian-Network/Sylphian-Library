@@ -13,13 +13,59 @@
     </xf:button>
 </xf:pageaction>
 
+<div class="block">
+	<br>
+	
+    <xf:form action="{{ link('logs/addon_logs/view', null, {'addon_id': $addonId}) }}" class="block">
+        <div class="block-container">
+            <h2 class="block-header">Filtering options</h2>
+            <div class="block-body">
+                <xf:datalist>
+                    <xf:datarow rowtype="header">
+                        <xf:cell colspan="2" width="30%">{{ phrase('date') }}</xf:cell>
+                        <xf:cell width="41%">{{ phrase('type') }}</xf:cell>
+                        <xf:cell>{{ phrase('user') }}</xf:cell>
+                        <xf:cell></xf:cell>
+                        <xf:cell></xf:cell>
+                    </xf:datarow>
+                    
+                    <xf:datarow>
+                        <xf:cell width="10%">Start date:</xf:cell>
+                        <xf:cell width="20%"><xf:datetimeinput name="start_date" value="{$filters.start_date}" /></xf:cell>
+                        <xf:cell width="41%" rowspan="2">
+                            <xf:select name="type" value="{$filters.type}" multiple="true">
+                                <xf:option value="any">{{ phrase('any') }}</xf:option>
+                                <xf:options source="$filterBits.types" />
+                            </xf:select>
+                        </xf:cell>
+                        <xf:cell rowspan="2">
+                            <xf:select name="user_id" value="{$filters.user_id}" class="input--inline">
+                                <xf:option value="0">{{ phrase('any') }}</xf:option>
+                                <xf:options source="$filterBits.users" />
+                            </xf:select>
+                        </xf:cell>
+                        <xf:cell rowspan="2"></xf:cell>
+                        <xf:cell rowspan="2"></xf:cell>
+                    </xf:datarow>
+                    
+                    <xf:datarow>
+                        <xf:cell width="10%">End date:</xf:cell>
+                        <xf:cell width="20%"><xf:datetimeinput name="end_date" value="{$filters.end_date}" /></xf:cell>
+                    </xf:datarow>
+                </xf:datalist>
+            </div>
+            <div class="block-footer" align="center">
+                <xf:button type="submit">Apply filters</xf:button>
+            </div>
+        </div>
+    </xf:form>
+
 <xf:if is="$logs is not empty">
-    <div class="block">
         <div class="block-container">
             <div class="block-body">
                 <xf:datalist>
                     <xf:datarow rowtype="header">
-                        <xf:cell>{{ phrase('date') }}</xf:cell>
+                        <xf:cell width="30%">{{ phrase('date') }}</xf:cell>
                         <xf:cell>{{ phrase('type') }}</xf:cell>
                         <xf:cell>{{ phrase('message') }}</xf:cell>
                         <xf:cell>{{ phrase('user') }}</xf:cell>
@@ -67,12 +113,20 @@
             </div>
         </div>
 
-        <xf:pagenav page="{$page}" perpage="{$perPage}" total="{$total}"
-                    link="logs/addon_logs/view&addon_id={$addonId}"
-                    wrapperclass="block-outer block-outer--after" />
-    </div>
+		<xf:pagenav page="{$page}" perpage="{$perPage}" total="{$total}"
+				link="logs/addon_logs/view"
+				params="{{ {
+					'addon_id': $addonId,
+					'start_date': $filters.start_date,
+					'end_date': $filters.end_date,
+					'type': $filters.type,
+					'user_id': $filters.user_id
+				} }}"
+				wrapperclass="block-outer block-outer--after" />
+	
     <xf:else />
     <div class="blockMessage">{{ phrase('sylphian_library_no_logs_available', {'addon': $addon ? $addon.title : $addonId}) }}</div>
 </xf:if>
+</div>
 
 <xf:css src="log_styles.less" />

@@ -4,6 +4,7 @@ namespace Sylphian\Library\Admin\Controller;
 
 use Sylphian\Library\AddonPermissionHandler;
 use Sylphian\Library\Entity\AddonLog;
+use Sylphian\Library\Logger\Logger;
 use Sylphian\Library\Repository\LogRepository;
 use XF\Admin\Controller\AbstractController;
 use XF\Mvc\ParameterBag;
@@ -55,9 +56,34 @@ class AddonLogs extends AbstractController
 		$page = $this->filterPage();
 		$perPage = 20;
 
+		$filters = [
+			'start_date' => $this->filter('start_date', 'datetime'),
+			'end_date' => $this->filter('end_date', 'datetime'),
+			'type' => $this->filter('type', 'array'),
+			'user_id' => $this->filter('user_id', 'array'),
+		];
+
 		/** @var LogRepository $logRepo */
 		$logRepo = $this->repository('Sylphian\Library:Log');
-		$logs = $logRepo->getLogsForAddon($addonId, $page, $perPage);
+
+		$filterBits = $logRepo->getAllAddonLogTypesAndUsers($addonId);
+
+		$filtersApplied = !empty($filters['start_date']) ||
+			!empty($filters['end_date']) ||
+			(!empty($filters['type']) && !(is_array($filters['type']) && in_array('any', $filters['type']))) ||
+			(!empty($filters['user_id']) && !(is_array($filters['user_id']) && (in_array('0', $filters['user_id']) || in_array('any', $filters['user_id']))));
+
+		if ($filtersApplied)
+		{
+			$logs = $logRepo->getLogsForAddon($addonId, $page, $perPage, $filters);
+			$total = $logRepo->getLogCountForAddon($addonId, $filters);
+		}
+		else
+		{
+			$logs = $logRepo->getLogsForAddon($addonId, $page, $perPage);
+			$total = $logRepo->getLogCountForAddon($addonId);
+
+		}
 
 		$addon = $this->em()->find('XF:AddOn', $addonId);
 
@@ -67,8 +93,12 @@ class AddonLogs extends AbstractController
 			'addonId' => $addonId,
 			'page' => $page,
 			'perPage' => $perPage,
-			'total' => $logRepo->getLogCountForAddon($addonId),
+			'total' => $total,
+			'filterBits' => $filterBits,
+			'filters' => $filters,
 		];
+
+		Logger::debug('addon filtering results', $viewParams);
 
 		return $this->view('Sylphian\Library:AddonLogs', 'sylphian_addon_logs', $viewParams);
 	}
@@ -135,7 +165,7 @@ class AddonLogs extends AbstractController
 		if ($this->isPost())
 		{
 			$log->delete();
-			return $this->redirect('admin.php?logs/addon_logs/view&addon_id=' . urlencode($log->addon_id));
+			return $this->redirect($this->buildLink('logs/addon_logs/view', null, ['addon_id' => $log->addon_id]));
 		}
 
 		$viewParams = [

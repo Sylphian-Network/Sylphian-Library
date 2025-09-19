@@ -1,8 +1,8 @@
 {
-    "addonLogCleanupDebug.json": {
-        "hash": "f8ceee54718077b4b57f36a34f2bb2c8"
-    },
     "addonLogLength.json": {
         "hash": "4c1acd3af4c0539e5769474ba173c974"
+    },
+    "sylphian_library_min_log_level.json": {
+        "hash": "a143ee8077bbd1e5182c6ef11c41e7bd"
     }
 }

@@ -21,11 +21,31 @@ class AddonLogger implements LoggerInterface
 	 */
 	protected ?string $defaultAddonId;
 
+	/**
+	 * @var string Minimum log level to record
+	 */
+	protected string $minLogLevel;
+
 	public function __construct(Manager $em, ?string $defaultAddonId = null)
 	{
 		$this->em = $em;
 		$this->defaultAddonId = $defaultAddonId;
+		$this->minLogLevel = \XF::options()->sylphian_library_min_log_level ?: LogLevel::DEBUG;
 	}
+
+	/**
+	 * Log level priorities (lower is less severe)
+	 */
+	protected static array $levelPriorities = [
+		LogLevel::DEBUG     => 0,
+		LogLevel::INFO      => 1,
+		LogLevel::NOTICE    => 2,
+		LogLevel::WARNING   => 3,
+		LogLevel::ERROR     => 4,
+		LogLevel::CRITICAL  => 5,
+		LogLevel::ALERT     => 6,
+		LogLevel::EMERGENCY => 7,
+	];
 
 	/**
 	 * Creates a new AddonLogger instance with proper class extension support
@@ -144,6 +164,11 @@ class AddonLogger implements LoggerInterface
 	 */
 	public function log($level, $message, array $context = []): void
 	{
+		if (self::$levelPriorities[$level] < self::$levelPriorities[$this->minLogLevel])
+		{
+			return;
+		}
+
 		$addonId = $context['addon_id'] ?? $this->defaultAddonId ?? $this->determineAddonId();
 
 		$addon = $this->em->find('XF:AddOn', $addonId);
