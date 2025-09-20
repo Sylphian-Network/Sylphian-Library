@@ -84,30 +84,15 @@ class AddonLog extends Entity
 	 * @param int $verbosity
 	 * @param array $options
 	 */
-	protected function setupApiResultData(
-		EntityResult $result,
-		$verbosity = self::VERBOSITY_NORMAL,
-		array $options = []
-	): void
+	protected function setupApiResultData(EntityResult $result, $verbosity = self::VERBOSITY_NORMAL, array $options = []): void
 	{
-        $result->includeColumn(['log_id', 'type', 'content', 'details']);
-
-		$addonInfo = null;
-		if ($this->AddOn)
-		{
-			$addonInfo = [
+		$result->includeColumn(['type', 'content', 'details']);
+		$result->includeExtra([
+			'addon_info' => [
 				'addon_id' => $this->AddOn->addon_id,
 				'title' => $this->AddOn->title,
 				'version_string' => $this->AddOn->version_string,
-			];
-		}
-
-		$result->includeExtra([
-			'date_formatted' => $this->app()->language()->dateTime($this->date),
-			'addon_info' => $addonInfo,
-			'view_url' => $this->log_id
-				? $this->app()->router()->buildLink('admin/logs/addon_logs/details', ['log_id' => $this->log_id])
-				: null,
+			],
 		]);
 	}
 }

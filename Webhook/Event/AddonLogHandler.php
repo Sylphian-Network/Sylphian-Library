@@ -14,14 +14,17 @@ class AddonLogHandler extends AbstractHandler
 	public function getEvents(): array
 	{
 		return [
-			'debug',
-			'info',
-			'notice',
-			'warning',
-			'error',
-			'critical',
-			'alert',
-			'emergency',
+			'insert',
+			'update',
+			'delete',
+			'debug_create',
+			'info_create',
+			'notice_create',
+			'warning_create',
+			'error_create',
+			'critical_create',
+			'alert_create',
+			'emergency_create',
 		];
 	}
 
@@ -35,14 +38,17 @@ class AddonLogHandler extends AbstractHandler
 	{
 		return match ($event)
 		{
-			'debug' => 'When a debug level log is created',
-			'info' => 'When an info level log is created',
-			'notice' => 'When a notice level log is created',
-			'warning' => 'When a warning level log is created',
-			'error' => 'When an error level log is created',
-			'critical' => 'When a critical level log is created',
-			'alert' => 'When an alert level log is created',
-			'emergency' => 'When an emergency level log is created',
+			'insert' => 'When a new addon log is created',
+			'update' => 'When an existing addon log is updated',
+			'delete' => 'When an addon log is deleted',
+			'debug_create' => 'When a debug level log is created',
+			'info_create' => 'When an info level log is created',
+			'notice_create' => 'When a notice level log is created',
+			'warning_create' => 'When a warning level log is created',
+			'error_create' => 'When an error level log is created',
+			'critical_create' => 'When a critical level log is created',
+			'alert_create' => 'When an alert level log is created',
+			'emergency_create' => 'When an emergency level log is created',
 			default => '',
 		};
 	}

@@ -205,19 +205,19 @@ class AddonLogger implements LoggerInterface
 		$log->user_id = \XF::visitor()->user_id ?: null;
 		$log->details = !empty($details) ? $details : null;
 
+		/** @var WebhookRepository $webhookRepo */
+		$webhookRepo = \XF::repository('XF:Webhook');
+
 		try
 		{
 			$log->save();
 
 			if ($log->log_id)
 			{
-				/** @var WebhookRepository $webhookRepo */
-				$webhookRepo = \XF::repository('XF:Webhook');
-
 				$webhookRepo->queueWebhook(
 					'syl_library_addon_log',
 					$log->log_id,
-					$level,
+					$level . '_create',
 					$log
 				);
 			}
@@ -232,6 +232,16 @@ class AddonLogger implements LoggerInterface
 				try
 				{
 					$log->save();
+
+					if ($log->log_id)
+					{
+						$webhookRepo->queueWebhook(
+							'syl_library_addon_log',
+							$log->log_id,
+							$level . '_create',
+							$log
+						);
+					}
 				}
 				catch (\Exception $e)
 				{
