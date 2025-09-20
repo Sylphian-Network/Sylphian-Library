@@ -8,6 +8,7 @@ use Sylphian\Library\Entity\AddonLog;
 use XF\Mvc\Entity\Manager;
 use XF\Mvc\Reply\Error;
 use XF\PrintableException;
+use XF\Repository\WebhookRepository;
 
 class AddonLogger implements LoggerInterface
 {
@@ -207,6 +208,19 @@ class AddonLogger implements LoggerInterface
 		try
 		{
 			$log->save();
+
+			if ($log->log_id)
+			{
+				/** @var WebhookRepository $webhookRepo */
+				$webhookRepo = \XF::repository('XF:Webhook');
+
+				$webhookRepo->queueWebhook(
+					'syl_library_addon_log',
+					$log->log_id,
+					$level,
+					$log
+				);
+			}
 		}
 		catch (PrintableException $e)
 		{
