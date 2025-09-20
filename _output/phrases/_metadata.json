@@ -59,6 +59,18 @@
         "version_string": "1.0.1",
         "hash": "7b132b5cdf95542c01cd894929a1277b"
     },
+    "sylphian_library_addon_log.txt": {
+        "global_cache": false,
+        "version_id": 1000510,
+        "version_string": "1.0.5 Alpha",
+        "hash": "b92bd7cd3968b969cd802dd2e23f45f9"
+    },
+    "sylphian_library_addon_logs.txt": {
+        "global_cache": false,
+        "version_id": 1000510,
+        "version_string": "1.0.5 Alpha",
+        "hash": "28e390f878fd30d89bb65c77b94e0a65"
+    },
     "sylphian_library_available_addon_logs.txt": {
         "global_cache": false,
         "version_id": 1000170,

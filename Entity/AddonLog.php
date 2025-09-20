@@ -2,6 +2,7 @@
 
 namespace Sylphian\Library\Entity;
 
+use XF\Api\Result\EntityResult;
 use XF\Entity\AddOn;
 use XF\Entity\User;
 use XF\Mvc\Entity\Entity;
@@ -55,6 +56,9 @@ class AddonLog extends Entity
 			],
 		];
 
+		$structure->behaviors['XF:Webhook'] = ['enabled' => true];
+		$structure->contentType = 'syl_library_addon_log';
+
 		return $structure;
 	}
 
@@ -71,5 +75,39 @@ class AddonLog extends Entity
 				$this->error(\XF::phrase('addon_with_id_not_found', ['id' => $this->addon_id]));
 			}
 		}
+	}
+
+	/**
+	 * Define how entity data is structured for API and webhook results
+	 *
+	 * @param EntityResult $result
+	 * @param int $verbosity
+	 * @param array $options
+	 */
+	protected function setupApiResultData(
+		EntityResult $result,
+		$verbosity = self::VERBOSITY_NORMAL,
+		array $options = []
+	): void
+	{
+        $result->includeColumn(['log_id', 'type', 'content', 'details']);
+
+		$addonInfo = null;
+		if ($this->AddOn)
+		{
+			$addonInfo = [
+				'addon_id' => $this->AddOn->addon_id,
+				'title' => $this->AddOn->title,
+				'version_string' => $this->AddOn->version_string,
+			];
+		}
+
+		$result->includeExtra([
+			'date_formatted' => $this->app()->language()->dateTime($this->date),
+			'addon_info' => $addonInfo,
+			'view_url' => $this->log_id
+				? $this->app()->router()->buildLink('admin/logs/addon_logs/details', ['log_id' => $this->log_id])
+				: null,
+		]);
 	}
 }
