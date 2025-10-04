@@ -1,0 +1,11 @@
+{
+    "syl_library_addon_log-entity.json": {
+        "hash": "e62972ec1984fbb2ce0b05d5b12d57a8"
+    },
+    "syl_library_addon_log-phrase_plural.json": {
+        "hash": "b745dc60de081e8d76fb1ecab0e39224"
+    },
+    "syl_library_addon_log-webhook_handler_class.json": {
+        "hash": "26ff79f662527f5e5b589e1cac6a0143"
+    }
+}

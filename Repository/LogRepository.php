@@ -4,8 +4,10 @@ namespace Sylphian\Library\Repository;
 
 use Sylphian\Library\AddonPermissionHandler;
 use Sylphian\Library\Logger\Logger;
+use XF\Entity\AddOn;
 use XF\Mvc\Entity\Finder;
 use XF\Mvc\Entity\Repository;
+use XF\Repository\WebhookRepository;
 
 class LogRepository extends Repository
 {
@@ -256,6 +258,40 @@ class LogRepository extends Repository
 	 */
 	public function clearLogsForAddon(string $addonId): int
 	{
+		$logCount = $this->finder('Sylphian\Library:AddonLog')
+			->where('addon_id', $addonId)
+			->total();
+
+		if ($logCount > 0)
+		{
+			/** @var AddOn $addon */
+			$addon = \XF::em()->find('XF:AddOn', $addonId);
+			$addonTitle = $addon ? $addon->title : $addonId;
+
+			$payload = [
+				'content' => "Batch deleted {$logCount} logs.",
+				'addon_info' => [
+					'addon_id' => $addonId,
+					'title' => $addonTitle,
+					'version_string' => $addon ? $addon->version_string : '',
+				],
+				'date' => \XF::$time,
+				'date_formatted' => \XF::language()->dateTime(\XF::$time),
+				'log_count' => $logCount,
+				'user_id' => \XF::visitor()->user_id,
+				'user_name' => \XF::visitor()->username,
+			];
+
+			/** @var WebhookRepository $webhookRepo */
+			$webhookRepo = $this->repository('XF:Webhook');
+			$webhookRepo->queueWebhook(
+				'syl_library_addon_log',
+				\XF::$time,
+				'batch_delete',
+				$payload
+			);
+		}
+
 		return $this->db()->delete('xf_addon_log', 'addon_id = ?', $addonId);
 	}
 
