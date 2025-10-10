@@ -256,21 +256,135 @@ class AddonLogger implements LoggerInterface
 	}
 
 	/**
-	 * Logs an error message and returns an Error reply
+	 * Helper for creating logged error replies.
 	 *
-	 * Used in controllers to save calling a log and return an error reply
+	 * Logs a message with a given level and returns a XenForo error reply.
+	 * This centralizes logic for `logged*()` methods.
 	 *
-	 * @param \Stringable|string $error The error message to log and return
-	 * @param array $context Additional context data for the log entry
+	 * @param string $level One of the PSR-3 log levels (LogLevel::*)
+	 * @param \Stringable|string $message The error message to log and return
+	 * @param array $context Additional context for the log entry
 	 * @param int $code HTTP response code
+	 *
+	 * @return Error
+	 */
+	protected function makeLoggedReply(string $level, \Stringable|string $message, array $context = [], int $code = 200): Error
+	{
+		$this->log($level, $message, $context);
+
+		return new Error($message, $code);
+	}
+
+	/**
+	 * Logs a debug-level message and returns an Error reply.
+	 *
+	 * @param \Stringable|string $debug   The debug message or object to log and include in the reply.
+	 * @param array              $context Additional context for interpolation in the log message.
+	 * @param int                $code    The HTTP status code for the returned error response.
+	 *
+	 * @return Error
+	 */
+	public function loggedDebug(\Stringable|string $debug, array $context = [], int $code = 200): Error
+	{
+		return $this->makeLoggedReply(LogLevel::DEBUG, $debug, $context, $code);
+	}
+
+	/**
+	 * Logs an info-level message and returns an Error reply.
+	 *
+	 * @param \Stringable|string $info   The info message or object to log and include in the reply.
+	 * @param array              $context Additional context for interpolation in the log message.
+	 * @param int                $code    The HTTP status code for the returned error response.
+	 *
+	 * @return Error
+	 */
+	public function loggedInfo(\Stringable|string $info, array $context = [], int $code = 200): Error
+	{
+		return $this->makeLoggedReply(LogLevel::INFO, $info, $context, $code);
+	}
+
+	/**
+	 * Logs a notice-level message and returns an Error reply.
+	 *
+	 * @param \Stringable|string $notice   The notice message or object to log and include in the reply.
+	 * @param array              $context Additional context for interpolation in the log message.
+	 * @param int                $code    The HTTP status code for the returned error response.
+	 *
+	 * @return Error
+	 */
+	public function loggedNotice(\Stringable|string $notice, array $context = [], int $code = 200): Error
+	{
+		return $this->makeLoggedReply(LogLevel::NOTICE, $notice, $context, $code);
+	}
+
+	/**
+	 * Logs a warning-level message and returns an Error reply.
+	 *
+	 * @param \Stringable|string $warning   The warning message or object to log and include in the reply.
+	 * @param array              $context Additional context for interpolation in the log message.
+	 * @param int                $code    The HTTP status code for the returned error response.
+	 *
+	 * @return Error
+	 */
+	public function loggedWarning(\Stringable|string $warning, array $context = [], int $code = 200): Error
+	{
+		return $this->makeLoggedReply(LogLevel::WARNING, $warning, $context, $code);
+	}
+
+	/**
+	 * Logs an error-level message and returns an Error reply.
+	 *
+	 * @param \Stringable|string $error   The error message or object to log and include in the reply.
+	 * @param array              $context Additional context for interpolation in the log message.
+	 * @param int                $code    The HTTP status code for the returned error response.
 	 *
 	 * @return Error
 	 */
 	public function loggedError(\Stringable|string $error, array $context = [], int $code = 200): Error
 	{
-		$this->log(LogLevel::ERROR, $error, $context);
+		return $this->makeLoggedReply(LogLevel::ERROR, $error, $context, $code);
+	}
 
-		return new Error($error, $code);
+	/**
+	 * Logs a critical-level message and returns an Error reply.
+	 *
+	 * @param \Stringable|string $critical   The critical message or object to log and include in the reply.
+	 * @param array              $context Additional context for interpolation in the log message.
+	 * @param int                $code    The HTTP status code for the returned error response.
+	 *
+	 * @return Error
+	 */
+	public function loggedCritical(\Stringable|string $critical, array $context = [], int $code = 500): Error
+	{
+		return $this->makeLoggedReply(LogLevel::CRITICAL, $critical, $context, $code);
+	}
+
+	/**
+	 * Logs an alert-level message and returns an Error reply.
+	 *
+	 * @param \Stringable|string $alert   The alert message or object to log and include in the reply.
+	 * @param array              $context Additional context for interpolation in the log message.
+	 * @param int                $code    The HTTP status code for the returned error response.
+	 *
+	 * @return Error
+	 */
+	public function loggedAlert(\Stringable|string $alert, array $context = [], int $code = 500): Error
+	{
+		return $this->makeLoggedReply(LogLevel::ALERT, $alert, $context, $code);
+	}
+
+	/**
+	 * Logs an emergency-level message and returns an Error reply.
+	 *
+	 * @param \Stringable|string $emergency   The emergency message or object to log and include in the reply.
+	 * @param array              $context Additional context for interpolation in the log message.
+	 * @param int                $code    The HTTP status code for the returned error response.
+	 *
+	 * @return Error
+	 */
+	public function loggedEmergency(\Stringable|string $emergency, array $context = [], int $code = 500): Error
+	{
+		return $this->makeLoggedReply(LogLevel::EMERGENCY, $emergency, $context, $code);
 	}
 
 	/**
