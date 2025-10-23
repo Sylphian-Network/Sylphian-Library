@@ -4,6 +4,7 @@ namespace Sylphian\Library\Install;
 
 use Sylphian\Library\Logger\Logger;
 use XF\Entity\UserField;
+use XF\Repository\UserFieldRepository;
 
 trait SylInstallHelperTrait
 {
@@ -73,7 +74,9 @@ trait SylInstallHelperTrait
 			$this->saveFieldPhrases($field, $title, $description, $logger);
 
 			$logger->debug('Rebuilding field cache');
-			\XF::repository('XF:UserField')->rebuildFieldCache();
+			/** @var UserFieldRepository $repo */
+			$repo = \XF::repository('XF:UserField');
+			$repo->rebuildFieldCache();
 
 			return true;
 		}
@@ -142,7 +145,9 @@ trait SylInstallHelperTrait
 
 			if ($success)
 			{
-				\XF::repository('XF:UserField')->rebuildFieldCache();
+				/** @var UserFieldRepository $repo */
+				$repo = \XF::repository('XF:UserField');
+				$repo->rebuildFieldCache();
 			}
 
 			return $success;
