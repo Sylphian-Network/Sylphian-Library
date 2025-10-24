@@ -5,6 +5,7 @@ namespace Sylphian\Library\Repository;
 use Sylphian\Library\Logger\Logger;
 use XF\Entity\UserField;
 use XF\Mvc\Entity\Repository;
+use XF\PrintableException;
 
 class UserFieldRepository extends Repository
 {
@@ -45,11 +46,17 @@ class UserFieldRepository extends Repository
 
 		$field->field_choices = $newChoices;
 
-		$field->save();
-		Logger::critical('New choices', [
-			'field' => $field,
-			'new choices' => $newChoices,
-		]);
+		try
+		{
+			$field->save();
+		}
+		catch (PrintableException|\Exception $e)
+		{
+			Logger::withAddonId('Sylphian/Library')->error('Error saving User Field options', [
+				'field_id' => $fieldId,
+				'exception' => $e->getMessage(),
+			]);
+		}
 
 		/** @var \XF\Repository\UserFieldRepository $repo */
 		$repo = \XF::repository('XF:UserField');
