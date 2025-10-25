@@ -4,6 +4,8 @@ namespace Sylphian\Library\Install;
 
 use Sylphian\Library\Logger\Logger;
 use XF\Entity\UserField;
+use XF\PrintableException;
+use XF\Repository\UserFieldRepository;
 
 trait SylInstallHelperTrait
 {
@@ -73,7 +75,9 @@ trait SylInstallHelperTrait
 			$this->saveFieldPhrases($field, $title, $description, $logger);
 
 			$logger->debug('Rebuilding field cache');
-			\XF::repository('XF:UserField')->rebuildFieldCache();
+			/** @var UserFieldRepository $repo */
+			$repo = \XF::repository('XF:UserField');
+			$repo->rebuildFieldCache();
 
 			return true;
 		}
@@ -94,7 +98,18 @@ trait SylInstallHelperTrait
 		$titlePhrase = $field->getMasterPhrase(true);
 		$titlePhrase->phrase_text = $title;
 		$titlePhrase->global_cache = true;
-		$titlePhrase->save(false);
+
+		try
+		{
+			$titlePhrase->save(false);
+		}
+		catch (PrintableException | \Exception $e)
+		{
+			$logger->error('Error saving title phrase', [
+				'field_id'  => $field->field_id,
+				'exception' => $e->getMessage(),
+			]);
+		}
 
 		// Description phrase
 		if ($description !== '')
@@ -102,7 +117,18 @@ trait SylInstallHelperTrait
 			$descPhrase = $field->getMasterPhrase(false);
 			$descPhrase->phrase_text = $description;
 			$descPhrase->global_cache = true;
-			$descPhrase->save(false);
+
+			try
+			{
+				$descPhrase->save(false);
+			}
+			catch (PrintableException | \Exception $e)
+			{
+				$logger->error('Error saving description phrase', [
+					'field_id'  => $field->field_id,
+					'exception' => $e->getMessage(),
+				]);
+			}
 		}
 
 		if (in_array($field->field_type, ['select', 'radio', 'checkbox', 'multiselect'], true)
@@ -113,8 +139,19 @@ trait SylInstallHelperTrait
 				$choicePhrase = $field->getMasterChoicePhrase($choice);
 				if ($choicePhrase)
 				{
-					$choicePhrase->global_cache = true;
-					$choicePhrase->save(false);
+					try
+					{
+						$choicePhrase->global_cache = true;
+						$choicePhrase->save(false);
+					}
+					catch (PrintableException | \Exception $e)
+					{
+						$logger->error('Error saving choice phrase', [
+							'field_id'  => $field->field_id,
+							'choice'    => $choice,
+							'exception' => $e->getMessage(),
+						]);
+					}
 				}
 			}
 		}
@@ -142,7 +179,9 @@ trait SylInstallHelperTrait
 
 			if ($success)
 			{
-				\XF::repository('XF:UserField')->rebuildFieldCache();
+				/** @var UserFieldRepository $repo */
+				$repo = \XF::repository('XF:UserField');
+				$repo->rebuildFieldCache();
 			}
 
 			return $success;

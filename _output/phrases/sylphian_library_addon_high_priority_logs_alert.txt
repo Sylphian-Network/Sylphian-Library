@@ -1,1 +1,1 @@
-High priority add-on errors have been logged. You should review these.
+High priority add-on errors have been logged. You should review these
