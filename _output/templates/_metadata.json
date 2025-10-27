@@ -10,9 +10,9 @@
         "hash": "4d4642f69d985afa8854cdbf538d9998"
     },
     "admin/sylphian_addon_logs.html": {
-        "version_id": 1000410,
-        "version_string": "1.0.4 Alpha",
-        "hash": "425bf44f77cbbb4ce315c854d62d150c"
+        "version_id": 1000610,
+        "version_string": "1.0.6",
+        "hash": "217d272a38cdda1e43a885cb1c916866"
     },
     "admin/sylphian_library_addon_cards.html": {
         "version_id": 1000270,

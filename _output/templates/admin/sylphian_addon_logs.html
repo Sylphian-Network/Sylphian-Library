@@ -39,7 +39,7 @@
                             </xf:select>
                         </xf:cell>
                         <xf:cell rowspan="2">
-                            <xf:select name="user_id" value="{$filters.user_id}" class="input--inline">
+                            <xf:select name="user_id" value="{$filters.user_id}" multiple="true" class="input--inline">
                                 <xf:option value="0">{{ phrase('any') }}</xf:option>
                                 <xf:options source="$filterBits.users" />
                             </xf:select>
