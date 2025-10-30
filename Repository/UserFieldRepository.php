@@ -2,6 +2,7 @@
 
 namespace Sylphian\Library\Repository;
 
+use Sylphian\Library\Job\UserFieldValueRebuild;
 use Sylphian\Library\Logger\Logger;
 use XF\Entity\UserField;
 use XF\Mvc\Entity\Repository;
@@ -56,11 +57,37 @@ class UserFieldRepository extends Repository
 				'field_id' => $fieldId,
 				'exception' => $e->getMessage(),
 			]);
+
+			return [
+				'updated' => false,
+				'before'  => $current,
+				'after'   => $current,
+			];
 		}
 
 		/** @var \XF\Repository\UserFieldRepository $repo */
 		$repo = \XF::repository('XF:UserField');
 		$repo->rebuildFieldCache();
+
+		$renameMap = $this->buildRenameMap($current, $newChoices);
+
+		$jobManager = \XF::app()->jobManager();
+		$uniqueId = 'sylUserFieldValueRebuild_' . $fieldId;
+		$jobManager->enqueueUnique(
+			$uniqueId,
+			UserFieldValueRebuild::class,
+			[
+				'fieldId'   => $fieldId,
+				'renameMap' => $renameMap,
+			],
+			false
+		);
+
+		Logger::withAddonId('Sylphian/Library')->info('Queued UserFieldValueRebuild job after choice update', [
+			'field_id'   => $fieldId,
+			'job_unique' => $uniqueId,
+			'rename_map' => $renameMap,
+		]);
 
 		return [
 			'updated' => true,
@@ -78,5 +105,52 @@ class UserFieldRepository extends Repository
 		}
 		ksort($out, SORT_NATURAL | SORT_FLAG_CASE);
 		return $out;
+	}
+
+	/**
+	 * @param array $oldChoices value => label
+	 * @param array $newChoices value => label
+	 * @return array<string,string> oldKey => newKey
+	 */
+	protected function buildRenameMap(array $oldChoices, array $newChoices): array
+	{
+		$old = $this->normalizeChoices($oldChoices);
+		$new = $this->normalizeChoices($newChoices);
+
+		$norm = static function (string $label): string
+		{
+			return strtolower(preg_replace('/\s+/', ' ', trim($label)));
+		};
+
+		$labelToOld = [];
+		foreach ($old AS $k => $label)
+		{
+			$labelToOld[$norm($label)][] = (string) $k;
+		}
+
+		$labelToNew = [];
+		foreach ($new AS $k => $label)
+		{
+			$labelToNew[$norm($label)][] = (string) $k;
+		}
+
+		$map = [];
+		foreach ($labelToOld AS $nLabel => $oldKeys)
+		{
+			if (!isset($labelToNew[$nLabel]))
+			{
+				continue;
+			}
+			$newKeys = $labelToNew[$nLabel];
+			if (count($oldKeys) === 1 && count($newKeys) === 1)
+			{
+				if ($oldKeys[0] !== $newKeys[0])
+				{
+					$map[$oldKeys[0]] = $newKeys[0];
+				}
+			}
+		}
+
+		return $map;
 	}
 }
