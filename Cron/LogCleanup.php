@@ -8,8 +8,7 @@ class LogCleanup
 {
 	public static function cleanUpCron(): void
 	{
-		/** @var LogRepository $logRepo */
-		$logRepo = \XF::repository('Sylphian\Library:Log');
+		$logRepo = \XF::repository(LogRepository::class);
 		$logRepo->pruneLogs();
 	}
 }

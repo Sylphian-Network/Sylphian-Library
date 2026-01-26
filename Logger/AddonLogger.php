@@ -205,8 +205,7 @@ class AddonLogger implements LoggerInterface
 		$log->user_id = \XF::visitor()->user_id ?: null;
 		$log->details = !empty($details) ? $details : null;
 
-		/** @var WebhookRepository $webhookRepo */
-		$webhookRepo = \XF::repository('XF:Webhook');
+		$webhookRepo = \XF::repository(WebhookRepository::class);
 
 		try
 		{

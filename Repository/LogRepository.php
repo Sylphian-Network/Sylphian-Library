@@ -282,8 +282,7 @@ class LogRepository extends Repository
 				'user_name' => \XF::visitor()->username,
 			];
 
-			/** @var WebhookRepository $webhookRepo */
-			$webhookRepo = $this->repository('XF:Webhook');
+			$webhookRepo = $this->repository(WebhookRepository::class);
 			$webhookRepo->queueWebhook(
 				'syl_library_addon_log',
 				\XF::$time,

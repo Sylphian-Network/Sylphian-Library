@@ -75,8 +75,7 @@ trait SylInstallHelperTrait
 			$this->saveFieldPhrases($field, $title, $description, $logger);
 
 			$logger->debug('Rebuilding field cache');
-			/** @var UserFieldRepository $repo */
-			$repo = \XF::repository('XF:UserField');
+			$repo = \XF::repository(UserFieldRepository::class);
 			$repo->rebuildFieldCache();
 
 			return true;
@@ -179,8 +178,7 @@ trait SylInstallHelperTrait
 
 			if ($success)
 			{
-				/** @var UserFieldRepository $repo */
-				$repo = \XF::repository('XF:UserField');
+				$repo = \XF::repository(UserFieldRepository::class);
 				$repo->rebuildFieldCache();
 			}
 

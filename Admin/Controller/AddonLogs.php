@@ -20,8 +20,7 @@ class AddonLogs extends AbstractController
 	 */
 	public function actionIndex(): View
 	{
-		/** @var LogRepository $logRepo */
-		$logRepo = $this->repository('Sylphian\Library:Log');
+		$logRepo = $this->repository(LogRepository::class);
 
 		$addons = $logRepo->getUniqueAddonsWithCounts();
 
@@ -63,8 +62,7 @@ class AddonLogs extends AbstractController
 			'user_id' => $this->filter('user_id', 'array'),
 		];
 
-		/** @var LogRepository $logRepo */
-		$logRepo = $this->repository('Sylphian\Library:Log');
+		$logRepo = $this->repository(LogRepository::class);
 
 		$filterBits = $logRepo->getAllAddonLogTypesAndUsers($addonId);
 
@@ -193,8 +191,7 @@ class AddonLogs extends AbstractController
 
 		if ($this->isPost())
 		{
-			/** @var LogRepository $logRepo */
-			$logRepo = $this->repository('Sylphian\Library:Log');
+			$logRepo = $this->repository(LogRepository::class);
 
 			$logRepo->clearLogsForAddon($addonId);
 
