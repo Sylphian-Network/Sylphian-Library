@@ -65,8 +65,7 @@ class UserFieldRepository extends Repository
 			];
 		}
 
-		/** @var \XF\Repository\UserFieldRepository $repo */
-		$repo = \XF::repository('XF:UserField');
+		$repo = \XF::repository(\XF\Repository\UserFieldRepository::class);
 		$repo->rebuildFieldCache();
 
 		$renameMap = $this->buildRenameMap($current, $newChoices);

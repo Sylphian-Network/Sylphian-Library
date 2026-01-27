@@ -23,8 +23,7 @@ class IndexController extends XFCP_IndexController
 			$visitor = \XF::visitor();
 			if ($visitor->hasAdminPermission('viewLogs'))
 			{
-				/** @var LogRepository $logRepo */
-				$logRepo = $this->repository('Sylphian\Library:Log');
+				$logRepo = $this->repository(LogRepository::class);
 
 				$logCounts = $logRepo->getHighPriorityLogCounts();
 
