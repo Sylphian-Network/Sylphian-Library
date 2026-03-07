@@ -183,17 +183,15 @@ class AddonLogger implements LoggerInterface
 
 		if (isset($context['exception']) && $context['exception'] instanceof \Throwable)
 		{
-			if (!isset($details['exception']))
-			{
-				$details['exception'] = [];
-			}
 			$exception = $context['exception'];
-			$details['exception']['class'] = get_class($exception);
-			$details['exception']['message'] = $exception->getMessage();
-			$details['exception']['code'] = $exception->getCode();
-			$details['exception']['file'] = $exception->getFile();
-			$details['exception']['line'] = $exception->getLine();
-			$details['exception']['trace'] = $exception->getTraceAsString();
+			$details['exception'] = [
+				'class' => get_class($exception),
+				'message' => $exception->getMessage(),
+				'code' => $exception->getCode(),
+				'file' => $exception->getFile(),
+				'line' => $exception->getLine(),
+				'trace' => $exception->getTraceAsString(),
+			];
 		}
 
 		/** @var AddonLog $log */
