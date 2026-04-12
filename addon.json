@@ -1,9 +1,9 @@
 {
     "legacy_addon_id": "",
     "title": "Sylphian - Library",
-    "description": "",
-    "version_id": 1010070,
-    "version_string": "1.1.0",
+    "description": "A simple library that adds a few bits that are useful for other add-ons.",
+    "version_id": 1010170,
+    "version_string": "1.1.1",
     "dev": "QuackieMackie",
     "dev_url": "https://github.com/QuackieMackie",
     "faq_url": "",
