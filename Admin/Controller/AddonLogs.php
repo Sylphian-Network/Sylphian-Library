@@ -4,7 +4,6 @@ namespace Sylphian\Library\Admin\Controller;
 
 use Sylphian\Library\AddonPermissionHandler;
 use Sylphian\Library\Entity\AddonLog;
-use Sylphian\Library\Logger\Logger;
 use Sylphian\Library\Repository\LogRepository;
 use XF\Admin\Controller\AbstractController;
 use XF\Mvc\ParameterBag;
@@ -95,8 +94,6 @@ class AddonLogs extends AbstractController
 			'filterBits' => $filterBits,
 			'filters' => $filters,
 		];
-
-		Logger::debug('addon filtering results', $viewParams);
 
 		return $this->view('Sylphian\Library:AddonLogs', 'sylphian_addon_logs', $viewParams);
 	}
