@@ -156,20 +156,23 @@ class LogRepository extends Repository
 	 */
 	public function getHighPriorityLogCounts(): ?array
 	{
-		$finder = $this->finder('Sylphian\Library:AddonLog')
-			->where('type', ['emergency', 'critical', 'alert', 'error']);
+		$rows = $this->db()->fetchAll("
+		SELECT addon_id, type, COUNT(*) AS total
+		FROM xf_addon_log
+		WHERE type IN ('emergency', 'alert', 'critical', 'error')
+		GROUP BY addon_id, type
+	");
 
-		if ($finder->total() <= 0)
+		$counts = ['emergency_count' => 0, 'alert_count' => 0, 'critical_count' => 0, 'error_count' => 0];
+		foreach ($rows AS $row)
 		{
-			return null;
+			if (AddonPermissionHandler::canViewAddonLogs(null, $row['addon_id']))
+			{
+				$counts[$row['type'] . '_count'] += $row['total'];
+			}
 		}
 
-		return [
-			'emergency_count' => (clone $finder)->where('type', 'emergency')->total(),
-			'critical_count'  => (clone $finder)->where('type', 'critical')->total(),
-			'alert_count'     => (clone $finder)->where('type', 'alert')->total(),
-			'error_count'     => (clone $finder)->where('type', 'error')->total(),
-		];
+		return array_sum($counts) ? $counts : null;
 	}
 
 
