@@ -229,25 +229,14 @@ class LogRepository extends Repository
 				'debug' => $addonCounts[$addonId]['debug_count'],
 			];
 
-			if (isset($addons[$addonId]))
-			{
-				$result[$addonId] = [
-					'addon' => $addons[$addonId],
-					'log_count' => $addonCounts[$addonId]['log_count'],
-					'latest_log_date' => $addonCounts[$addonId]['latest_log_date'],
-					'type_counts' => $typeCounts,
-				];
-			}
-			else
-			{
-				$result[$addonId] = [
-					'addon_id' => $addonId,
-					'addon' => null,
-					'log_count' => $addonCounts[$addonId]['log_count'],
-					'latest_log_date' => $addonCounts[$addonId]['latest_log_date'],
-					'type_counts' => $typeCounts,
-				];
-			}
+			// Entries outlive their add-on, so addon is null for one that has been uninstalled.
+			$result[$addonId] = [
+				'addon_id' => $addonId,
+				'addon' => $addons[$addonId] ?? null,
+				'log_count' => $addonCounts[$addonId]['log_count'],
+				'latest_log_date' => $addonCounts[$addonId]['latest_log_date'],
+				'type_counts' => $typeCounts,
+			];
 		}
 
 		return $result;

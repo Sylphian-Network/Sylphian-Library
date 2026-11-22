@@ -86,12 +86,15 @@ class AddonLog extends Entity
 	 */
 	protected function setupApiResultData(EntityResult $result, $verbosity = self::VERBOSITY_NORMAL, array $options = []): void
 	{
-		$result->includeColumn(['type', 'content', 'details']);
+		$result->includeColumn(['log_id', 'date', 'user_id', 'type', 'content', 'details']);
+
+		// The add-on may have been uninstalled since the entry was written.
+		$addOn = $this->AddOn;
 		$result->includeExtra([
 			'addon_info' => [
-				'addon_id' => $this->AddOn->addon_id,
-				'title' => $this->AddOn->title,
-				'version_string' => $this->AddOn->version_string,
+				'addon_id' => $this->addon_id,
+				'title' => $addOn ? $addOn->title : $this->addon_id,
+				'version_string' => $addOn ? $addOn->version_string : '',
 			],
 		]);
 	}
