@@ -9,6 +9,15 @@
     "faq_url": "",
     "support_url": "https://github.com/Sylphian-Network/Sylphian-Library/issues",
     "extra_urls": [],
-    "require": [],
+    "require": {
+        "XF": [
+            2030000,
+            "XenForo 2.3.0+"
+        ],
+        "php": [
+            "8.3.0",
+            "PHP 8.3+"
+        ]
+    },
     "icon": "fa-books"
 }
