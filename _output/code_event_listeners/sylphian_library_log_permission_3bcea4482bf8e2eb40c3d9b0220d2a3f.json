@@ -1,0 +1,9 @@
+{
+    "event_id": "sylphian_library_log_permission",
+    "execute_order": 10,
+    "callback_class": "Sylphian\\Library\\Listener\\LogPermission",
+    "callback_method": "library",
+    "active": true,
+    "hint": "Sylphian/Library",
+    "description": "The Library's own entries need sylLib_sylphian_library"
+}

@@ -1,0 +1,16 @@
+{
+    "description": "<p>Called when the Library needs to know which admin permission guards an add-on's logs. Set <code>$permissionId</code> to that permission. Admins then need it as well as \"View addon logs\". Leave it unset to require \"View addon logs\" only.</p>",
+    "arguments": [
+        {
+            "name": "$addonId",
+            "type": "string",
+            "description": "the add-on whose logs are being checked"
+        },
+        {
+            "name": "&$permissionId",
+            "type": "string|null",
+            "description": "the admin permission ID that guards this add-on's logs"
+        }
+    ],
+    "hint_description": "The add-on ID, e.g. Sylphian/Backup."
+}
