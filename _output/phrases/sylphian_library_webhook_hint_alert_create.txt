@@ -1,0 +1,1 @@
+When a log entry at the alert level is created

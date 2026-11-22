@@ -95,6 +95,12 @@
         "version_string": "1.0.1",
         "hash": "8a1e9a2be13be983c694c722f7f63365"
     },
+    "sylphian_library_batch_deleted_x_logs.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "258cdff8bb79cad430cfeeb420382fda"
+    },
     "sylphian_library_clear_addon_logs.txt": {
         "global_cache": false,
         "version_id": 1000170,
@@ -203,10 +209,88 @@
         "version_string": "1.0.1",
         "hash": "2bfddac86c0d1672635a81a3f8aecbcb"
     },
+    "sylphian_library_rebuilding_user_field_x.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "b11f21b9c52929e7f6420be1c013a7ef"
+    },
     "sylphian_library_view_addon_log_details.txt": {
         "global_cache": false,
         "version_id": 1000170,
         "version_string": "1.0.1",
         "hash": "ebc64edca4c656f7d0b721d7626f81d6"
+    },
+    "sylphian_library_webhook_hint_alert_create.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "e628adec7a2e8381b0211b799c8741bf"
+    },
+    "sylphian_library_webhook_hint_batch_delete.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "be191efb880bfff453fc93e325c29229"
+    },
+    "sylphian_library_webhook_hint_critical_create.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "e47143a2beee46d6f7496a04debd84b0"
+    },
+    "sylphian_library_webhook_hint_debug_create.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "17ccff06d50f758ac48c487531ee8135"
+    },
+    "sylphian_library_webhook_hint_delete.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "149e2fb565f272f0d8c71496fbc0d369"
+    },
+    "sylphian_library_webhook_hint_emergency_create.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "eea2a9d8eb1fd259cb7cd45ba056e2e1"
+    },
+    "sylphian_library_webhook_hint_error_create.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "758b5c4ff7eedcc21596e95846dc446c"
+    },
+    "sylphian_library_webhook_hint_info_create.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "4c32a4eeb9850d1710e1401055ca2983"
+    },
+    "sylphian_library_webhook_hint_insert.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "1a70ba2511d11c25f757c727d4e604fd"
+    },
+    "sylphian_library_webhook_hint_notice_create.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "f181cd13a2f69822c29ca15f78037f03"
+    },
+    "sylphian_library_webhook_hint_update.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "1319632d281631922312f0bd2feb60ee"
+    },
+    "sylphian_library_webhook_hint_warning_create.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "b4ee0473a10472b3d71822234fb36470"
     }
 }

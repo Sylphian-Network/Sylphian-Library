@@ -136,13 +136,15 @@ class UserFieldValueRebuild extends AbstractJob
 		$total = (int) ($this->data['total'] ?? 0);
 		$fieldId = (string) ($this->data['fieldId'] ?? '');
 
+		$message = \XF::phrase('sylphian_library_rebuilding_user_field_x', ['field' => $fieldId]);
+
 		if ($total > 0)
 		{
-			return sprintf('Rebuilding user field "%s" values... %d/%d', $fieldId, $processed, $total);
+			return sprintf('%s... %d/%d', $message, $processed, $total);
 		}
 		else
 		{
-			return sprintf('Rebuilding user field "%s" values...', $fieldId);
+			return sprintf('%s...', $message);
 		}
 	}
 

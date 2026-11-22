@@ -1,0 +1,1 @@
+When an add-on log entry is deleted
