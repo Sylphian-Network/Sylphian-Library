@@ -14,6 +14,11 @@ use XF\PrintableException;
 
 class AddonLogs extends AbstractController
 {
+	protected function preDispatchController($action, ParameterBag $params)
+	{
+		$this->assertAdminPermission('viewAddonLogs');
+	}
+
 	/**
 	 * Display all unique addons from the xf_addon_log table as cards
 	 */
