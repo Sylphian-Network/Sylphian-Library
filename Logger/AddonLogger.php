@@ -157,15 +157,26 @@ class AddonLogger implements LoggerInterface
 	}
 
 	/**
-	 * Logs with an arbitrary level.
+	 * Never throws for a bad level, unlike PSR-3, so an error that is being logged is not lost.
+	 * An unknown level is logged as `error`, and the caller's value (or its type, when it has no
+	 * string form) goes in `details.original_level`.
 	 *
-	 * @param mixed $level
-	 * @param string $message
+	 * @param mixed $level a LogLevel constant, in any case
+	 * @param string|\Stringable $message
 	 * @param array $context
 	 */
 	public function log($level, $message, array $context = []): void
 	{
-		if (self::$levelPriorities[$level] < self::$levelPriorities[$this->minLogLevel])
+		$originalLevel = is_scalar($level) || $level instanceof \Stringable ? (string) $level : get_debug_type($level);
+		$level = strtolower(trim($originalLevel));
+		if (!isset(self::$levelPriorities[$level]))
+		{
+			$context['original_level'] = $originalLevel;
+			$level = LogLevel::ERROR;
+		}
+
+		$minPriority = self::$levelPriorities[$this->minLogLevel] ?? 0;
+		if (self::$levelPriorities[$level] < $minPriority)
 		{
 			return;
 		}
