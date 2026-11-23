@@ -5,6 +5,7 @@ namespace Sylphian\Library\Logger;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Sylphian\Library\Entity\AddonLog;
+use XF\Db\AbstractAdapter;
 use XF\Mvc\Entity\Manager;
 use XF\Mvc\Reply\Error;
 use XF\PrintableException;
@@ -26,6 +27,10 @@ class AddonLogger implements LoggerInterface
 	 * @var string Minimum log level to record
 	 */
 	protected string $minLogLevel;
+
+	protected bool $joinTransaction = false;
+
+	protected static ?AbstractAdapter $detachedDb = null;
 
 	public function __construct(Manager $em, ?string $defaultAddonId = null)
 	{
@@ -63,6 +68,18 @@ class AddonLogger implements LoggerInterface
 	{
 		$loggerClass = \XF::extendClass(self::class);
 		return new $loggerClass(\XF::em(), $defaultAddonId);
+	}
+
+	/**
+	 * Returns a copy that writes on the caller's connection even inside a transaction, so its
+	 * entries commit or roll back with the caller's work. Use it only when they must be all-or-nothing.
+	 */
+	public function joinTransaction(bool $join = true): static
+	{
+		$clone = clone $this;
+		$clone->joinTransaction = $join;
+
+		return $clone;
 	}
 
 	/**
@@ -219,6 +236,89 @@ class AddonLogger implements LoggerInterface
 		$log->user_id = \XF::visitor()->user_id ?: null;
 		$log->details = $details ? $this->limitDetails($details) : null;
 
+		if ($this->joinTransaction || !$this->em->getDb()->inTransaction())
+		{
+			$this->saveEntity($log, $level, $addonId);
+
+			return;
+		}
+
+		try
+		{
+			if ($this->saveDetached($log, $level))
+			{
+				return;
+			}
+		}
+		catch (\Throwable $e)
+		{
+			\XF::logException($e, false, 'Error saving add-on log on its own connection: ');
+		}
+
+		$this->saveEntity($log, $level, $addonId);
+	}
+
+	/**
+	 * Returns false without writing when the entry fails validation, so the caller can fall back.
+	 */
+	protected function saveDetached(AddonLog $log, string $level): bool
+	{
+		if (!$log->preSave())
+		{
+			return false;
+		}
+
+		// Bypasses the entity on purpose: saving it would write on the main connection.
+		$row = [];
+		foreach ($log->getNewValues() AS $column => $value)
+		{
+			$row[$column] = $this->em->encodeValueForSource($log->structure()->columns[$column]['type'], $value);
+		}
+
+		$db = static::getDetachedConnection();
+		$db->insert('xf_addon_log', $row);
+		$logId = (int) $db->lastInsertId();
+
+		// Webhooks are queued on the main connection, so they wait until the caller's transaction is over.
+		\XF::runLater(function () use ($logId, $level)
+		{
+			$entry = \XF::em()->find(AddonLog::class, $logId);
+			if (!$entry)
+			{
+				return;
+			}
+
+			$webhookRepo = \XF::repository(WebhookRepository::class);
+			$webhookRepo->queueWebhook('syl_library_addon_log', $logId, 'insert', $entry);
+			$webhookRepo->queueWebhook('syl_library_addon_log', $logId, $level . '_create', $entry);
+		});
+
+		return true;
+	}
+
+	protected static function getDetachedConnection(): AbstractAdapter
+	{
+		if (!static::$detachedDb)
+		{
+			$config = \XF::config();
+			$dbConfig = $config['db'];
+			$adapterClass = $dbConfig['adapterClass'];
+			unset($dbConfig['adapterClass']);
+
+			$db = new $adapterClass($dbConfig, $config['fullUnicode']);
+
+			// The caller's transaction may hold locks this insert waits on, and it cannot release them
+			// until the log call returns, so give up quickly and fall back to the caller's connection.
+			$db->query('SET SESSION innodb_lock_wait_timeout = 5');
+
+			static::$detachedDb = $db;
+		}
+
+		return static::$detachedDb;
+	}
+
+	protected function saveEntity(AddonLog $log, string $level, string $addonId): void
+	{
 		$webhookRepo = \XF::repository(WebhookRepository::class);
 
 		try
@@ -511,11 +611,9 @@ class AddonLogger implements LoggerInterface
 	}
 
 	/**
-	 * Determine the addon ID from the call stack
+	 * Library frames are skipped, so an entry logged by the Library itself must pass its add-on ID.
 	 *
-	 * Note: If logs are created in the library, the addon id will need to be manually specified.
-	 *
-	 * @return string The determined addon ID (fallback to 'XF' if couldn't determine)
+	 * @return string the first installed add-on on the call stack, or 'XF' if there is none
 	 */
 	private function determineAddonId(): string
 	{
