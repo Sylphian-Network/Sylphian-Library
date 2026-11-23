@@ -1,0 +1,1 @@
+When a log entry at the info level is created

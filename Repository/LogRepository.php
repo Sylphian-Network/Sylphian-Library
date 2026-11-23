@@ -53,7 +53,7 @@ class LogRepository extends Repository
 			}
 			else
 			{
-				$users['System'] = 'System';
+				$users['System'] = \XF::phrase('system');
 			}
 		}
 
@@ -269,7 +269,8 @@ class LogRepository extends Repository
 			$addonTitle = $addon ? $addon->title : $addonId;
 
 			$payload = [
-				'content' => "Batch deleted {$logCount} logs.",
+				'content' => \XF::app()->language(\XF::options()->defaultLanguageId)
+					->renderPhrase('sylphian_library_batch_deleted_x_logs', ['count' => $logCount], 'raw'),
 				'addon_info' => [
 					'addon_id' => $addonId,
 					'title' => $addonTitle,

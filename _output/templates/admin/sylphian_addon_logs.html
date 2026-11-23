@@ -16,7 +16,7 @@
 <div class="block">
     <xf:form action="{{ link('logs/addon_logs/view', null, {'addon_id': $addonId}) }}" class="block">
         <div class="block-container">
-            <h2 class="block-header">Filtering options</h2>
+            <h2 class="block-header">{{ phrase('filters') }}</h2>
             <div class="block-body">
                 <xf:datalist>
                     <xf:datarow rowtype="header">
@@ -28,7 +28,7 @@
                     </xf:datarow>
                     
                     <xf:datarow>
-                        <xf:cell width="10%">Start date:</xf:cell>
+                        <xf:cell width="10%">{{ phrase('start_date') }}</xf:cell>
                         <xf:cell width="20%"><xf:datetimeinput name="start_date" value="{$filters.start_date}" /></xf:cell>
                         <xf:cell width="41%" rowspan="2">
                             <xf:select name="type" value="{$filters.type}" multiple="true">
@@ -47,13 +47,13 @@
                     </xf:datarow>
                     
                     <xf:datarow>
-                        <xf:cell width="10%">End date:</xf:cell>
+                        <xf:cell width="10%">{{ phrase('end_date') }}</xf:cell>
                         <xf:cell width="20%"><xf:datetimeinput name="end_date" value="{$filters.end_date}" /></xf:cell>
                     </xf:datarow>
                 </xf:datalist>
             </div>
             <div class="block-footer" align="center">
-                <xf:button type="submit">Apply filters</xf:button>
+                <xf:button type="submit">{{ phrase('filter') }}</xf:button>
             </div>
         </div>
     </xf:form>

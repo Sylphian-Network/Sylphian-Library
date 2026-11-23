@@ -37,22 +37,12 @@ class AddonLogHandler extends AbstractHandler
 	 */
 	public function getEventHint(string $event): string
 	{
-		return match ($event)
+		if (!in_array($event, $this->getEvents(), true))
 		{
-			'insert' => 'When a new addon log is created',
-			'update' => 'When an existing addon log is updated',
-			'delete' => 'When an addon log is deleted',
-			'batch_delete' => 'When multiple logs are deleted in a batch operation',
-			'debug_create' => 'When a debug level log is created',
-			'info_create' => 'When an info level log is created',
-			'notice_create' => 'When a notice level log is created',
-			'warning_create' => 'When a warning level log is created',
-			'error_create' => 'When an error level log is created',
-			'critical_create' => 'When a critical level log is created',
-			'alert_create' => 'When an alert level log is created',
-			'emergency_create' => 'When an emergency level log is created',
-			default => '',
-		};
+			return '';
+		}
+
+		return \XF::phrase('sylphian_library_webhook_hint_' . $event)->render();
 	}
 
 	/**
