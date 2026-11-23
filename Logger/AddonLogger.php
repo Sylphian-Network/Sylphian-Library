@@ -34,6 +34,11 @@ class AddonLogger implements LoggerInterface
 		$this->minLogLevel = \XF::options()->sylphian_library_min_log_level ?: LogLevel::DEBUG;
 	}
 
+	protected const MAX_DETAILS_BYTES = 60000;
+	protected const MAX_DETAIL_STRING_BYTES = 2000;
+	protected const MAX_CONTENT_BYTES = 65000;
+	protected const MAX_TRACE_LINES = 50;
+
 	/**
 	 * Log level priorities (lower is less severe)
 	 */
@@ -201,7 +206,7 @@ class AddonLogger implements LoggerInterface
 				'code' => $exception->getCode(),
 				'file' => $exception->getFile(),
 				'line' => $exception->getLine(),
-				'trace' => $exception->getTraceAsString(),
+				'trace' => $this->limitTrace($exception->getTraceAsString()),
 			];
 		}
 
@@ -209,10 +214,10 @@ class AddonLogger implements LoggerInterface
 		$log = $this->em->create('Sylphian\Library:AddonLog');
 		$log->addon_id = $addonId;
 		$log->type = $level;
-		$log->content = $this->interpolate($message, $context);
+		$log->content = $this->limitBytes($this->interpolate($message, $context), self::MAX_CONTENT_BYTES);
 		$log->date = \XF::$time;
 		$log->user_id = \XF::visitor()->user_id ?: null;
-		$log->details = !empty($details) ? $details : null;
+		$log->details = $details ? $this->limitDetails($details) : null;
 
 		$webhookRepo = \XF::repository(WebhookRepository::class);
 
@@ -414,6 +419,95 @@ class AddonLogger implements LoggerInterface
 		}
 
 		return strtr($message, $replace);
+	}
+
+	/**
+	 * Makes the details safe to save: invalid UTF-8 is replaced, and anything over
+	 * MAX_DETAILS_BYTES is cut down, marked with `_truncated`, so the entry itself is never lost.
+	 * The exception block is the last thing dropped.
+	 */
+	protected function limitDetails(array $details): array
+	{
+		// The entity rejects invalid UTF-8 on assignment, before the save's try block.
+		$encoded = json_encode($details, JSON_PARTIAL_OUTPUT_ON_ERROR | JSON_INVALID_UTF8_SUBSTITUTE);
+		$details = $encoded !== false ? json_decode($encoded, true) : null;
+		if (!is_array($details))
+		{
+			return ['_truncated' => true];
+		}
+
+		if ($this->fitsDetailsColumn($details))
+		{
+			return $details;
+		}
+
+		foreach ($details AS $key => $value)
+		{
+			if ($key !== 'exception')
+			{
+				$details[$key] = $this->limitStrings($value);
+			}
+		}
+		$details['_truncated'] = true;
+
+		if ($this->fitsDetailsColumn($details))
+		{
+			return $details;
+		}
+
+		$details = array_intersect_key($details, ['exception' => true, '_truncated' => true]);
+		if ($this->fitsDetailsColumn($details))
+		{
+			return $details;
+		}
+
+		$details = $this->limitStrings($details);
+
+		return $this->fitsDetailsColumn($details) ? $details : ['_truncated' => true];
+	}
+
+	protected function fitsDetailsColumn(array $details): bool
+	{
+		// Measured with the same flags the entity saves with.
+		return strlen((string) json_encode($details, JSON_PARTIAL_OUTPUT_ON_ERROR)) <= self::MAX_DETAILS_BYTES;
+	}
+
+	protected function limitStrings(mixed $value): mixed
+	{
+		if (is_array($value))
+		{
+			array_walk_recursive($value, function (&$item)
+			{
+				$item = $this->limitStrings($item);
+			});
+
+			return $value;
+		}
+
+		return is_string($value) ? $this->limitBytes($value, self::MAX_DETAIL_STRING_BYTES) : $value;
+	}
+
+	protected function limitBytes(string $value, int $maxBytes): string
+	{
+		if (strlen($value) <= $maxBytes)
+		{
+			return $value;
+		}
+
+		return mb_strcut($value, 0, $maxBytes - 3, 'UTF-8') . '...';
+	}
+
+	protected function limitTrace(string $trace): string
+	{
+		$lines = explode("\n", $trace);
+		if (count($lines) <= self::MAX_TRACE_LINES)
+		{
+			return $trace;
+		}
+
+		$more = count($lines) - self::MAX_TRACE_LINES;
+
+		return implode("\n", array_slice($lines, 0, self::MAX_TRACE_LINES)) . "\n... ($more more)";
 	}
 
 	/**
