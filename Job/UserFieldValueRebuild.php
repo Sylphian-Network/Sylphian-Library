@@ -6,6 +6,8 @@ use Sylphian\Library\Logger\Logger;
 use XF\Entity\UserField;
 use XF\Job\AbstractJob;
 use XF\Job\JobResult;
+use XF\Repository\UserFieldRepository;
+use XF\Util\Php;
 
 class UserFieldValueRebuild extends AbstractJob
 {
@@ -13,6 +15,8 @@ class UserFieldValueRebuild extends AbstractJob
 		'fieldId' => null,
 		'lastUserId' => 0,
 		'processed'  => 0,
+		'changed'    => 0,
+		'removed'    => 0,
 		'total'      => null,
 		'batch'      => 100,
 		'renameMap'  => [],
@@ -46,11 +50,6 @@ class UserFieldValueRebuild extends AbstractJob
 				$fieldId
 			);
 
-			Logger::withAddonId('Sylphian/Library')->info('UserFieldValueRebuild: snapshot acquired', [
-				'field_id' => $fieldId,
-				'total' => $this->data['total'],
-			]);
-
 			$batch = (int) $this->data['batch'];
 			if ($batch < 1)
 			{
@@ -64,7 +63,9 @@ class UserFieldValueRebuild extends AbstractJob
 		}
 
 		$choices = (array) $field->field_choices;
-		$allowedSingle = array_map('strval', array_keys($choices));
+		$allowedKeys = array_map('strval', array_keys($choices));
+		$multiple = in_array($field->field_type, ['checkbox', 'multiselect'], true);
+		$fieldRepo = $this->app->repository(UserFieldRepository::class);
 
 		$max = (float) $maxRunTime;
 
@@ -92,7 +93,8 @@ class UserFieldValueRebuild extends AbstractJob
 				Logger::withAddonId('Sylphian/Library')->info('UserFieldValueRebuild: finished', [
 					'field_id' => $fieldId,
 					'processed' => $this->data['processed'],
-					'total' => $this->data['total'],
+					'changed' => $this->data['changed'],
+					'removed' => $this->data['removed'],
 				]);
 				return $this->complete();
 			}
@@ -100,22 +102,25 @@ class UserFieldValueRebuild extends AbstractJob
 			foreach ($rows AS $row)
 			{
 				$userId = (int) $row['user_id'];
-				$raw = $row['field_value'];
+				$newValue = $this->normalizeValue($row['field_value'], $allowedKeys, $multiple);
 
-				$newValue = $this->normalizeValue($raw, $allowedSingle);
-
-				if ($newValue !== $raw)
+				if ($newValue !== $row['field_value'])
 				{
-					$db->update('xf_user_field_value', [
-						'field_value' => $newValue,
-					], 'user_id = ? AND field_id = ?', [$userId, $fieldId]);
+					// xf_user_field_value has no entity, so it is written directly, as core does.
+					if ($newValue === null)
+					{
+						$db->delete('xf_user_field_value', 'user_id = ? AND field_id = ?', [$userId, $fieldId]);
+						$this->data['removed']++;
+					}
+					else
+					{
+						$db->update('xf_user_field_value', [
+							'field_value' => $newValue,
+						], 'user_id = ? AND field_id = ?', [$userId, $fieldId]);
+						$this->data['changed']++;
+					}
 
-					Logger::withAddonId('Sylphian/Library')->notice('UserFieldValueRebuild: corrected field value', [
-						'field_id' => $fieldId,
-						'user_id' => $userId,
-						'before' => $raw,
-						'after' => $newValue,
-					]);
+					$fieldRepo->rebuildUserFieldValuesCache($userId);
 				}
 
 				$this->data['lastUserId'] = $userId;
@@ -159,64 +164,31 @@ class UserFieldValueRebuild extends AbstractJob
 	}
 
 	/**
-	 * @param string $raw
-	 * @param array $allowedKeys
-	 * @return string
+	 * Applies the rename map and drops keys that are no longer choices. Checkbox and multiselect
+	 * values are serialized arrays, as XenForo stores them.
+	 *
+	 * @param list<string> $allowedKeys
+	 * @return string|null null when nothing valid is left and the row should be deleted
 	 */
-	protected function normalizeValue(string $raw, array $allowedKeys): string
+	protected function normalizeValue(string $raw, array $allowedKeys, bool $multiple): ?string
 	{
-		$trimmed = trim($raw);
-		if ($trimmed === '')
+		$renameMap = (array) $this->data['renameMap'];
+		$map = static function (string $key) use ($renameMap): string
 		{
-			return '';
-		}
-
-		$renameMap = (array) ($this->data['renameMap'] ?? []);
-		$applyMap = static function (string $k) use ($renameMap): string
-		{
-			return array_key_exists($k, $renameMap) ? (string) $renameMap[$k] : $k;
+			return array_key_exists($key, $renameMap) ? (string) $renameMap[$key] : $key;
 		};
 
-		$decoded = json_decode($trimmed, true);
-		if (is_array($decoded))
+		if ($multiple)
 		{
-			$mapped = [];
-			foreach ($decoded AS $v)
-			{
-				$mapped[] = $applyMap((string) $v);
-			}
-			$filtered = [];
-			foreach ($mapped AS $s)
-			{
-				if (in_array($s, $allowedKeys, true))
-				{
-					$filtered[] = $s;
-				}
-			}
-			return $filtered ? json_encode(array_values(array_unique($filtered))) : '';
+			$values = Php::safeUnserialize($raw);
+			$values = is_array($values) ? array_map('strval', $values) : [];
+			$kept = array_values(array_unique(array_intersect(array_map($map, $values), $allowedKeys)));
+
+			return $kept ? serialize($kept) : null;
 		}
 
-		if (str_contains($trimmed, ','))
-		{
-			$parts = array_map('trim', explode(',', $trimmed));
-			$mapped = array_map($applyMap, array_map('strval', $parts));
-			$filtered = [];
-			foreach ($mapped AS $s)
-			{
-				if ($s !== '' && in_array($s, $allowedKeys, true))
-				{
-					$filtered[] = $s;
-				}
-			}
-			return $filtered ? json_encode(array_values(array_unique($filtered))) : '';
-		}
+		$value = $map(trim($raw));
 
-		$scalar = $applyMap($trimmed);
-		if (in_array($scalar, $allowedKeys, true))
-		{
-			return $scalar;
-		}
-
-		return '';
+		return in_array($value, $allowedKeys, true) ? $value : null;
 	}
 }
