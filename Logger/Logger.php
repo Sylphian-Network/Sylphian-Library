@@ -138,25 +138,6 @@ final class Logger
 	}
 
 	/**
-	 * Helper for creating logged error replies.
-	 *
-	 * Logs a message with a given level and returns a XenForo error reply.
-	 * This centralizes logic for `logged*()` methods.
-	 *
-	 * @param string $level One of the PSR-3 log levels (LogLevel::*)
-	 * @param \Stringable|string $error The error message to log and return
-	 * @param array $context Additional context for the log entry
-	 * @param int $code HTTP response code
-	 *
-	 * @return Error
-	 */
-	protected static function makeLoggedReply(string $level, \Stringable|string $error, array $context = [], int $code = 200): Error
-	{
-		self::log($level, (string) $error, $context);
-		return new Error($error, $code);
-	}
-
-	/**
 	 * Logs an emergency-level message and returns an error reply.
 	 *
 	 * Used for situations where the system is unusable or completely failed.
@@ -167,9 +148,9 @@ final class Logger
 	 *
 	 * @return Error
 	 */
-	public static function loggedEmergency(\Stringable|string $error, array $context = [], int $code = 200): Error
+	public static function loggedEmergency(\Stringable|string $error, array $context = [], int $code = 500): Error
 	{
-		return self::makeLoggedReply(LogLevel::EMERGENCY, $error, $context, $code);
+		return AddonLogger::create()->loggedEmergency($error, $context, $code);
 	}
 
 	/**
@@ -183,9 +164,9 @@ final class Logger
 	 *
 	 * @return Error
 	 */
-	public static function loggedAlert(\Stringable|string $error, array $context = [], int $code = 200): Error
+	public static function loggedAlert(\Stringable|string $error, array $context = [], int $code = 500): Error
 	{
-		return self::makeLoggedReply(LogLevel::ALERT, $error, $context, $code);
+		return AddonLogger::create()->loggedAlert($error, $context, $code);
 	}
 
 	/**
@@ -199,9 +180,9 @@ final class Logger
 	 *
 	 * @return Error
 	 */
-	public static function loggedCritical(\Stringable|string $error, array $context = [], int $code = 200): Error
+	public static function loggedCritical(\Stringable|string $error, array $context = [], int $code = 500): Error
 	{
-		return self::makeLoggedReply(LogLevel::CRITICAL, $error, $context, $code);
+		return AddonLogger::create()->loggedCritical($error, $context, $code);
 	}
 
 	/**
@@ -217,7 +198,7 @@ final class Logger
 	 */
 	public static function loggedError(\Stringable|string $error, array $context = [], int $code = 200): Error
 	{
-		return self::makeLoggedReply(LogLevel::ERROR, $error, $context, $code);
+		return AddonLogger::create()->loggedError($error, $context, $code);
 	}
 
 	/**
@@ -233,7 +214,7 @@ final class Logger
 	 */
 	public static function loggedWarning(\Stringable|string $error, array $context = [], int $code = 200): Error
 	{
-		return self::makeLoggedReply(LogLevel::WARNING, $error, $context, $code);
+		return AddonLogger::create()->loggedWarning($error, $context, $code);
 	}
 
 	/**
@@ -249,7 +230,7 @@ final class Logger
 	 */
 	public static function loggedNotice(\Stringable|string $error, array $context = [], int $code = 200): Error
 	{
-		return self::makeLoggedReply(LogLevel::NOTICE, $error, $context, $code);
+		return AddonLogger::create()->loggedNotice($error, $context, $code);
 	}
 
 	/**
@@ -265,7 +246,7 @@ final class Logger
 	 */
 	public static function loggedInfo(\Stringable|string $error, array $context = [], int $code = 200): Error
 	{
-		return self::makeLoggedReply(LogLevel::INFO, $error, $context, $code);
+		return AddonLogger::create()->loggedInfo($error, $context, $code);
 	}
 
 	/**
@@ -281,6 +262,6 @@ final class Logger
 	 */
 	public static function loggedDebug(\Stringable|string $error, array $context = [], int $code = 200): Error
 	{
-		return self::makeLoggedReply(LogLevel::DEBUG, $error, $context, $code);
+		return AddonLogger::create()->loggedDebug($error, $context, $code);
 	}
 }
