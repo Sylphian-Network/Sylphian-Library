@@ -1,4 +1,4 @@
-<xf:title>{{ phrase_dynamic('sylphian_library_logs_for_addon', {'addon': $addon.title}) }}</xf:title>
+<xf:title>{{ phrase_dynamic('sylphian_library_logs_for_addon', {'addon': $addon ? $addon.title : $addonId}) }}</xf:title>
 
 <xf:pageaction>
     <xf:button href="{{ link('logs/addon_logs') }}">

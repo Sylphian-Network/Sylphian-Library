@@ -3,7 +3,7 @@
 <div class="addon-card-container">
     <xf:foreach loop="$addons" value="$addonInfo">
         <div class="addon-card">
-            <a href="{{ link('logs/addon_logs/view', null, {'addon_id': $addonInfo.addon.addon_id}) }}" class="addon-card-link">
+            <a href="{{ link('logs/addon_logs/view', null, {'addon_id': $addonInfo.addon_id}) }}" class="addon-card-link">
                 <div class="addon-card-header">
                     <h3 class="addon-card-title">
                         <xf:if is="$addonInfo.addon">

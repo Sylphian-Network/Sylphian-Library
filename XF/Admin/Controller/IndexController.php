@@ -18,20 +18,16 @@ class IndexController extends XFCP_IndexController
 	{
 		$reply = parent::actionIndex();
 
-		if ($reply instanceof View)
+		if ($reply instanceof View && \XF::visitor()->hasAdminPermission('viewAddonLogs'))
 		{
-			$visitor = \XF::visitor();
-			if ($visitor->hasAdminPermission('viewLogs'))
-			{
-				$logRepo = $this->repository(LogRepository::class);
+			$logRepo = $this->repository(LogRepository::class);
+			$logCounts = $logRepo->getHighPriorityLogCounts();
 
-				$logCounts = $logRepo->getHighPriorityLogCounts();
+			$viewParams = $reply->getParams();
+			$viewParams['addonErrorLogs'] = (bool) $logCounts;
+			$viewParams['addonErrorLogCounts'] = $logCounts;
 
-				$viewParams = $reply->getParams();
-				$viewParams['addonErrorLogs'] = (bool) $logCounts;
-				$viewParams['addonErrorLogCounts'] = $logCounts;
-				$reply->setParams($viewParams);
-			}
+			$reply->setParams($viewParams);
 		}
 
 		return $reply;

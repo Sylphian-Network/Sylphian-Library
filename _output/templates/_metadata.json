@@ -12,12 +12,12 @@
     "admin/sylphian_addon_logs.html": {
         "version_id": 1020070,
         "version_string": "1.2.0",
-        "hash": "ce189ec2279b3c43cc66f0bd77324bc6"
+        "hash": "548a29696d42ac1ff1a9231a3071ec12"
     },
     "admin/sylphian_library_addon_cards.html": {
-        "version_id": 1000270,
-        "version_string": "1.0.2",
-        "hash": "4506e9211a56bbf48debddd38d6001b8"
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "104817a2843804920314e9ffd7ba82fb"
     },
     "admin/sylphian_library_log_delete.html": {
         "version_id": 1020070,
