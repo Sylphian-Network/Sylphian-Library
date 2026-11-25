@@ -1,0 +1,52 @@
+<xf:macro id="level_label" arg-type="!">
+	<span class="label log-label log-type-{$type}">
+		<xf:fa icon="{{
+			$type == 'emergency' ? 'fa-exclamation-triangle' :
+			($type == 'alert' ? 'fa-bell' :
+			($type == 'critical' ? 'fa-times' :
+			($type == 'error' ? 'fa-times' :
+			($type == 'warning' ? 'fa-exclamation-triangle' :
+			($type == 'notice' ? 'fa-info-circle' :
+			($type == 'info' ? 'fa-info-circle' : 'fa-bug')))))) }}" />
+		{{ phrase_dynamic('sylphian_library_logType_' . $type) }}
+	</span>
+</xf:macro>
+
+<xf:macro id="log_rows" arg-log="!" arg-formattedDetails="">
+	<xf:formrow label="{{ phrase('type') }}">
+		<xf:macro id="sylphian_library_log_macros::level_label" arg-type="{$log.type}" />
+	</xf:formrow>
+
+	<xf:formrow label="{{ phrase('sylphian_library_addon_id') }}">
+		{{ $log.addon_id }}
+	</xf:formrow>
+
+	<xf:formrow label="{{ phrase('date') }}">
+		{{ date_time($log.date) }}
+	</xf:formrow>
+
+	<xf:formrow label="{{ phrase('content') }}">
+		{{ $log.content }}
+	</xf:formrow>
+
+	<xf:if is="$log.details">
+		<xf:formrow label="{{ phrase('details') }}">
+			<xf:textarearow value="{$formattedDetails}" readonly="true" rows="10" rowtype="fullWidth noLabel" />
+		</xf:formrow>
+	</xf:if>
+
+	<xf:formrow label="{{ phrase('generated_by') }}">
+		<div class="contentRow contentRow--alignMiddle">
+			<div class="contentRow-figure">
+				<xf:avatar user="$log.User" size="s" defaultname="{{ phrase('unknown_account') }}" />
+			</div>
+			<div class="contentRow-main">
+				<xf:if is="$log.User">
+					<a href="{{ link('users/edit', $log.User) }}" class="username">{{ $log.User.username }}</a>
+				<xf:else />
+					<span class="username">{{ phrase('unknown_account') }}</span>
+				</xf:if>
+			</div>
+		</div>
+	</xf:formrow>
+</xf:macro>

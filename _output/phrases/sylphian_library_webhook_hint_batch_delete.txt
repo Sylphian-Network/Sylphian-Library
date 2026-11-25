@@ -1,0 +1,1 @@
+When all log entries for an add-on are cleared

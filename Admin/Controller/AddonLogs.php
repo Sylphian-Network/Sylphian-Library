@@ -62,8 +62,8 @@ class AddonLogs extends AbstractController
 		$filters = [
 			'start_date' => $this->filter('start_date', 'datetime'),
 			'end_date' => $this->filter('end_date', 'datetime'),
-			'type' => $this->filter('type', 'array'),
-			'user_id' => $this->filter('user_id', 'array'),
+			'type' => $this->filter('type', 'array-str'),
+			'user_id' => $this->filter('user_id', 'array-str'),
 		];
 
 		$logRepo = $this->repository(LogRepository::class);

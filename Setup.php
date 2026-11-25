@@ -6,6 +6,7 @@ use XF\AddOn\AbstractSetup;
 use XF\AddOn\StepRunnerInstallTrait;
 use XF\AddOn\StepRunnerUninstallTrait;
 use XF\AddOn\StepRunnerUpgradeTrait;
+use XF\Db\Schema\Alter;
 use XF\Db\Schema\Create;
 
 class Setup extends AbstractSetup
@@ -14,32 +15,40 @@ class Setup extends AbstractSetup
 	use StepRunnerUpgradeTrait;
 	use StepRunnerUninstallTrait;
 
-	public function installStep1(): bool
+	public function installStep1(): void
 	{
-		try
-		{
-			$this->schemaManager()->createTable('xf_addon_log', function (Create $table)
-			{
-				$table->addColumn('log_id', 'int')->autoIncrement();
-				$table->addColumn('addon_id', 'varbinary', 50);
-				$table->addColumn('date', 'int');
-				$table->addColumn('type', 'varchar', 20);
-				$table->addColumn('content', 'text');
-				$table->addColumn('user_id', 'int')->nullable();
-				$table->addColumn('details', 'blob')->nullable();
+		$sm = $this->schemaManager();
 
-				$table->addKey('date');
-				$table->addKey('addon_id');
-				$table->addKey(['addon_id', 'type']);
-			});
-
-			return true;
-		}
-		catch (\Exception $exception)
+		if ($sm->tableExists('xf_addon_log'))
 		{
-			\XF::logException($exception, false, 'Error creating addon log table: ');
-			return false;
+			return;
 		}
+
+		$sm->createTable('xf_addon_log', function (Create $table)
+		{
+			$table->addColumn('log_id', 'int')->autoIncrement();
+			$table->addColumn('addon_id', 'varbinary', 50);
+			$table->addColumn('date', 'int');
+			$table->addColumn('type', 'varchar', 20);
+			$table->addColumn('content', 'text');
+			$table->addColumn('user_id', 'int')->nullable();
+			$table->addColumn('details', 'blob')->nullable();
+
+			$table->addKey('date');
+			$table->addKey(['addon_id', 'type']);
+			$table->addKey(['addon_id', 'date'], 'addon_id_date');
+			$table->addKey(['type', 'addon_id'], 'type_addon_id');
+		});
+	}
+
+	public function upgrade1020070Step1(): void
+	{
+		$this->schemaManager()->alterTable('xf_addon_log', function (Alter $table)
+		{
+			$table->addKey(['addon_id', 'date'], 'addon_id_date');
+			$table->addKey(['type', 'addon_id'], 'type_addon_id');
+			$table->dropIndexes('addon_id');
+		});
 	}
 
 	public function uninstallStep1(): true

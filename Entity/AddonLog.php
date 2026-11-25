@@ -32,10 +32,10 @@ class AddonLog extends Entity
 		$structure->columns = [
 			'log_id' => ['type' => self::UINT, 'autoIncrement' => true],
 			'addon_id' => ['type' => self::BINARY, 'maxLength' => 50, 'required' => true],
-			'date' => ['type' => self::UINT, 'default' => \XF::$time],
+			'date' => ['type' => self::UINT, 'required' => true],
 			'type' => ['type' => self::STR, 'maxLength' => 20, 'required' => true],
 			'content' => ['type' => self::STR, 'required' => true],
-			'user_id' => ['type' => self::UINT, 'nullable' => true, 'default' => \XF::visitor()->user_id],
+			'user_id' => ['type' => self::UINT, 'nullable' => true],
 			'details' => ['type' => self::JSON_ARRAY, 'nullable' => true],
 		];
 
@@ -63,10 +63,22 @@ class AddonLog extends Entity
 	}
 
 	/**
-	 * Validate that the addon exists in the system
+	 * Defaults the date and user here, not in the structure, because the structure is cached.
 	 */
 	protected function _preSave(): void
 	{
+		if ($this->isInsert())
+		{
+			if (!$this->isChanged('date'))
+			{
+				$this->date = \XF::$time;
+			}
+			if (!$this->isChanged('user_id'))
+			{
+				$this->user_id = \XF::visitor()->user_id ?: null;
+			}
+		}
+
 		if ($this->isChanged('addon_id'))
 		{
 			$addon = $this->em()->find('XF:AddOn', $this->addon_id);

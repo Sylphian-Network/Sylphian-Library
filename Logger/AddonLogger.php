@@ -5,6 +5,7 @@ namespace Sylphian\Library\Logger;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Sylphian\Library\Entity\AddonLog;
+use XF\Db\AbstractAdapter;
 use XF\Mvc\Entity\Manager;
 use XF\Mvc\Reply\Error;
 use XF\PrintableException;
@@ -27,12 +28,21 @@ class AddonLogger implements LoggerInterface
 	 */
 	protected string $minLogLevel;
 
+	protected bool $joinTransaction = false;
+
+	protected static ?AbstractAdapter $detachedDb = null;
+
 	public function __construct(Manager $em, ?string $defaultAddonId = null)
 	{
 		$this->em = $em;
 		$this->defaultAddonId = $defaultAddonId;
 		$this->minLogLevel = \XF::options()->sylphian_library_min_log_level ?: LogLevel::DEBUG;
 	}
+
+	protected const MAX_DETAILS_BYTES = 60000;
+	protected const MAX_DETAIL_STRING_BYTES = 2000;
+	protected const MAX_CONTENT_BYTES = 65000;
+	protected const MAX_TRACE_LINES = 50;
 
 	/**
 	 * Log level priorities (lower is less severe)
@@ -58,6 +68,18 @@ class AddonLogger implements LoggerInterface
 	{
 		$loggerClass = \XF::extendClass(self::class);
 		return new $loggerClass(\XF::em(), $defaultAddonId);
+	}
+
+	/**
+	 * Returns a copy that writes on the caller's connection even inside a transaction, so its
+	 * entries commit or roll back with the caller's work. Use it only when they must be all-or-nothing.
+	 */
+	public function joinTransaction(bool $join = true): static
+	{
+		$clone = clone $this;
+		$clone->joinTransaction = $join;
+
+		return $clone;
 	}
 
 	/**
@@ -157,15 +179,26 @@ class AddonLogger implements LoggerInterface
 	}
 
 	/**
-	 * Logs with an arbitrary level.
+	 * Never throws for a bad level, unlike PSR-3, so an error that is being logged is not lost.
+	 * An unknown level is logged as `error`, and the caller's value (or its type, when it has no
+	 * string form) goes in `details.original_level`.
 	 *
-	 * @param mixed $level
-	 * @param string $message
+	 * @param mixed $level a LogLevel constant, in any case
+	 * @param string|\Stringable $message
 	 * @param array $context
 	 */
 	public function log($level, $message, array $context = []): void
 	{
-		if (self::$levelPriorities[$level] < self::$levelPriorities[$this->minLogLevel])
+		$originalLevel = is_scalar($level) || $level instanceof \Stringable ? (string) $level : get_debug_type($level);
+		$level = strtolower(trim($originalLevel));
+		if (!isset(self::$levelPriorities[$level]))
+		{
+			$context['original_level'] = $originalLevel;
+			$level = LogLevel::ERROR;
+		}
+
+		$minPriority = self::$levelPriorities[$this->minLogLevel] ?? 0;
+		if (self::$levelPriorities[$level] < $minPriority)
 		{
 			return;
 		}
@@ -190,7 +223,7 @@ class AddonLogger implements LoggerInterface
 				'code' => $exception->getCode(),
 				'file' => $exception->getFile(),
 				'line' => $exception->getLine(),
-				'trace' => $exception->getTraceAsString(),
+				'trace' => $this->limitTrace($exception->getTraceAsString()),
 			];
 		}
 
@@ -198,11 +231,94 @@ class AddonLogger implements LoggerInterface
 		$log = $this->em->create('Sylphian\Library:AddonLog');
 		$log->addon_id = $addonId;
 		$log->type = $level;
-		$log->content = $this->interpolate($message, $context);
+		$log->content = $this->limitBytes($this->interpolate($message, $context), self::MAX_CONTENT_BYTES);
 		$log->date = \XF::$time;
 		$log->user_id = \XF::visitor()->user_id ?: null;
-		$log->details = !empty($details) ? $details : null;
+		$log->details = $details ? $this->limitDetails($details) : null;
 
+		if ($this->joinTransaction || !$this->em->getDb()->inTransaction())
+		{
+			$this->saveEntity($log, $level, $addonId);
+
+			return;
+		}
+
+		try
+		{
+			if ($this->saveDetached($log, $level))
+			{
+				return;
+			}
+		}
+		catch (\Throwable $e)
+		{
+			\XF::logException($e, false, 'Error saving add-on log on its own connection: ');
+		}
+
+		$this->saveEntity($log, $level, $addonId);
+	}
+
+	/**
+	 * Returns false without writing when the entry fails validation, so the caller can fall back.
+	 */
+	protected function saveDetached(AddonLog $log, string $level): bool
+	{
+		if (!$log->preSave())
+		{
+			return false;
+		}
+
+		// Bypasses the entity on purpose: saving it would write on the main connection.
+		$row = [];
+		foreach ($log->getNewValues() AS $column => $value)
+		{
+			$row[$column] = $this->em->encodeValueForSource($log->structure()->columns[$column]['type'], $value);
+		}
+
+		$db = static::getDetachedConnection();
+		$db->insert('xf_addon_log', $row);
+		$logId = (int) $db->lastInsertId();
+
+		// Webhooks are queued on the main connection, so they wait until the caller's transaction is over.
+		\XF::runLater(function () use ($logId, $level)
+		{
+			$entry = \XF::em()->find(AddonLog::class, $logId);
+			if (!$entry)
+			{
+				return;
+			}
+
+			$webhookRepo = \XF::repository(WebhookRepository::class);
+			$webhookRepo->queueWebhook('syl_library_addon_log', $logId, 'insert', $entry);
+			$webhookRepo->queueWebhook('syl_library_addon_log', $logId, $level . '_create', $entry);
+		});
+
+		return true;
+	}
+
+	protected static function getDetachedConnection(): AbstractAdapter
+	{
+		if (!static::$detachedDb)
+		{
+			$config = \XF::config();
+			$dbConfig = $config['db'];
+			$adapterClass = $dbConfig['adapterClass'];
+			unset($dbConfig['adapterClass']);
+
+			$db = new $adapterClass($dbConfig, $config['fullUnicode']);
+
+			// The caller's transaction may hold locks this insert waits on, and it cannot release them
+			// until the log call returns, so give up quickly and fall back to the caller's connection.
+			$db->query('SET SESSION innodb_lock_wait_timeout = 5');
+
+			static::$detachedDb = $db;
+		}
+
+		return static::$detachedDb;
+	}
+
+	protected function saveEntity(AddonLog $log, string $level, string $addonId): void
+	{
 		$webhookRepo = \XF::repository(WebhookRepository::class);
 
 		try
@@ -406,11 +522,98 @@ class AddonLogger implements LoggerInterface
 	}
 
 	/**
-	 * Determine the addon ID from the call stack
+	 * Makes the details safe to save: invalid UTF-8 is replaced, and anything over
+	 * MAX_DETAILS_BYTES is cut down, marked with `_truncated`, so the entry itself is never lost.
+	 * The exception block is the last thing dropped.
+	 */
+	protected function limitDetails(array $details): array
+	{
+		// The entity rejects invalid UTF-8 on assignment, before the save's try block.
+		$encoded = json_encode($details, JSON_PARTIAL_OUTPUT_ON_ERROR | JSON_INVALID_UTF8_SUBSTITUTE);
+		$details = $encoded !== false ? json_decode($encoded, true) : null;
+		if (!is_array($details))
+		{
+			return ['_truncated' => true];
+		}
+
+		if ($this->fitsDetailsColumn($details))
+		{
+			return $details;
+		}
+
+		foreach ($details AS $key => $value)
+		{
+			if ($key !== 'exception')
+			{
+				$details[$key] = $this->limitStrings($value);
+			}
+		}
+		$details['_truncated'] = true;
+
+		if ($this->fitsDetailsColumn($details))
+		{
+			return $details;
+		}
+
+		$details = array_intersect_key($details, ['exception' => true, '_truncated' => true]);
+		if ($this->fitsDetailsColumn($details))
+		{
+			return $details;
+		}
+
+		$details = $this->limitStrings($details);
+
+		return $this->fitsDetailsColumn($details) ? $details : ['_truncated' => true];
+	}
+
+	protected function fitsDetailsColumn(array $details): bool
+	{
+		// Measured with the same flags the entity saves with.
+		return strlen((string) json_encode($details, JSON_PARTIAL_OUTPUT_ON_ERROR)) <= self::MAX_DETAILS_BYTES;
+	}
+
+	protected function limitStrings(mixed $value): mixed
+	{
+		if (is_array($value))
+		{
+			array_walk_recursive($value, function (&$item)
+			{
+				$item = $this->limitStrings($item);
+			});
+
+			return $value;
+		}
+
+		return is_string($value) ? $this->limitBytes($value, self::MAX_DETAIL_STRING_BYTES) : $value;
+	}
+
+	protected function limitBytes(string $value, int $maxBytes): string
+	{
+		if (strlen($value) <= $maxBytes)
+		{
+			return $value;
+		}
+
+		return mb_strcut($value, 0, $maxBytes - 3, 'UTF-8') . '...';
+	}
+
+	protected function limitTrace(string $trace): string
+	{
+		$lines = explode("\n", $trace);
+		if (count($lines) <= self::MAX_TRACE_LINES)
+		{
+			return $trace;
+		}
+
+		$more = count($lines) - self::MAX_TRACE_LINES;
+
+		return implode("\n", array_slice($lines, 0, self::MAX_TRACE_LINES)) . "\n... ($more more)";
+	}
+
+	/**
+	 * Library frames are skipped, so an entry logged by the Library itself must pass its add-on ID.
 	 *
-	 * Note: If logs are created in the library, the addon id will need to be manually specified.
-	 *
-	 * @return string The determined addon ID (fallback to 'XF' if couldn't determine)
+	 * @return string the first installed add-on on the call stack, or 'XF' if there is none
 	 */
 	private function determineAddonId(): string
 	{

@@ -1,0 +1,1 @@
+Batch deleted {count} logs.
