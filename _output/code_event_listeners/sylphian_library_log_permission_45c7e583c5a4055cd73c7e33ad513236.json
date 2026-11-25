@@ -1,0 +1,9 @@
+{
+    "event_id": "sylphian_library_log_permission",
+    "execute_order": 10,
+    "callback_class": "Sylphian\\Library\\Listener\\LogPermission",
+    "callback_method": "xf",
+    "active": true,
+    "hint": "XF",
+    "description": "Entries filed under XF need sylLib_xf"
+}

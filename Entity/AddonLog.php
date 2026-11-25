@@ -32,10 +32,10 @@ class AddonLog extends Entity
 		$structure->columns = [
 			'log_id' => ['type' => self::UINT, 'autoIncrement' => true],
 			'addon_id' => ['type' => self::BINARY, 'maxLength' => 50, 'required' => true],
-			'date' => ['type' => self::UINT, 'default' => \XF::$time],
+			'date' => ['type' => self::UINT, 'required' => true],
 			'type' => ['type' => self::STR, 'maxLength' => 20, 'required' => true],
 			'content' => ['type' => self::STR, 'required' => true],
-			'user_id' => ['type' => self::UINT, 'nullable' => true, 'default' => \XF::visitor()->user_id],
+			'user_id' => ['type' => self::UINT, 'nullable' => true],
 			'details' => ['type' => self::JSON_ARRAY, 'nullable' => true],
 		];
 
@@ -63,10 +63,22 @@ class AddonLog extends Entity
 	}
 
 	/**
-	 * Validate that the addon exists in the system
+	 * Defaults the date and user here, not in the structure, because the structure is cached.
 	 */
 	protected function _preSave(): void
 	{
+		if ($this->isInsert())
+		{
+			if (!$this->isChanged('date'))
+			{
+				$this->date = \XF::$time;
+			}
+			if (!$this->isChanged('user_id'))
+			{
+				$this->user_id = \XF::visitor()->user_id ?: null;
+			}
+		}
+
 		if ($this->isChanged('addon_id'))
 		{
 			$addon = $this->em()->find('XF:AddOn', $this->addon_id);
@@ -86,12 +98,15 @@ class AddonLog extends Entity
 	 */
 	protected function setupApiResultData(EntityResult $result, $verbosity = self::VERBOSITY_NORMAL, array $options = []): void
 	{
-		$result->includeColumn(['type', 'content', 'details']);
+		$result->includeColumn(['log_id', 'date', 'user_id', 'type', 'content', 'details']);
+
+		// The add-on may have been uninstalled since the entry was written.
+		$addOn = $this->AddOn;
 		$result->includeExtra([
 			'addon_info' => [
-				'addon_id' => $this->AddOn->addon_id,
-				'title' => $this->AddOn->title,
-				'version_string' => $this->AddOn->version_string,
+				'addon_id' => $this->addon_id,
+				'title' => $addOn ? $addOn->title : $this->addon_id,
+				'version_string' => $addOn ? $addOn->version_string : '',
 			],
 		]);
 	}

@@ -5,6 +5,7 @@ namespace Sylphian\Library\Repository;
 use Sylphian\Library\AddonPermissionHandler;
 use Sylphian\Library\Logger\Logger;
 use XF\Entity\AddOn;
+use XF\Entity\User;
 use XF\Mvc\Entity\Finder;
 use XF\Mvc\Entity\Repository;
 use XF\Repository\WebhookRepository;
@@ -36,40 +37,28 @@ class LogRepository extends Repository
 	 */
 	public function getAllAddonLogTypesAndUsers(string $addonId): array
 	{
-		$finder = $this->finder('Sylphian\Library:AddonLog')
-			->where('addon_id', $addonId);
+		// The Finder cannot select DISTINCT values.
+		$db = $this->db();
+		$types = $db->fetchAllColumn('SELECT DISTINCT type FROM xf_addon_log WHERE addon_id = ? ORDER BY type', $addonId);
+		$userIds = $db->fetchAllColumn('SELECT DISTINCT user_id FROM xf_addon_log WHERE addon_id = ?', $addonId);
 
-		$types = [];
 		$users = [];
-		$userIds = [];
-
-		foreach ($finder->fetch() AS $log)
+		if (in_array(null, $userIds, true))
 		{
-			$types[$log->type] = $log->type;
-
-			if ($log->user_id)
-			{
-				$userIds[$log->user_id] = $log->user_id;
-			}
-			else
-			{
-				$users['System'] = 'System';
-			}
+			$users['System'] = \XF::phrase('system');
 		}
 
-		if (!empty($userIds))
+		$userIds = array_filter(array_map('intval', $userIds));
+		if ($userIds)
 		{
-			$userFinder = $this->finder('XF:User')
-				->whereIds($userIds);
-
-			foreach ($userFinder->fetch() AS $user)
+			foreach ($this->finder(User::class)->whereIds($userIds)->order('username')->fetch() AS $user)
 			{
 				$users[$user->user_id] = $user->username;
 			}
 		}
 
 		return [
-			'types' => $types,
+			'types' => array_combine($types, $types),
 			'users' => $users,
 		];
 	}
@@ -100,47 +89,31 @@ class LogRepository extends Repository
 		{
 			$finder->where('date', '<=', $filters['end_date']);
 		}
-		if (!empty($filters['type']))
+		$types = (array) ($filters['type'] ?? []);
+		if ($types && !in_array('any', $types, true))
 		{
-			$type = $filters['type'];
+			$finder->where('type', array_values(array_map('strval', $types)));
+		}
 
-			if (is_array($type) && !in_array('any', $type))
+		$userFilter = (array) ($filters['user_id'] ?? []);
+		if ($userFilter && !in_array('0', $userFilter, true) && !in_array('any', $userFilter, true))
+		{
+			$userConditions = [];
+			foreach ($userFilter AS $value)
 			{
-				$typeConditions = [];
-				foreach ($type AS $t)
+				if (strtolower((string) $value) === 'system')
 				{
-					$typeConditions[] = ['type', $t];
+					$userConditions[] = ['user_id', null];
 				}
-
-				if (count($typeConditions) > 0)
+				else if ($userId = (int) $value)
 				{
-					$finder->whereOr($typeConditions);
+					$userConditions[] = ['user_id', $userId];
 				}
 			}
-		}
-		if (!empty($filters['user_id']))
-		{
-			$userId = $filters['user_id'];
 
-			if (is_array($userId) && !in_array('0', $userId) && !in_array('any', $userId))
+			if ($userConditions)
 			{
-				$userConditions = [];
-				foreach ($userId AS $uid)
-				{
-					if ($uid === 'System' || $uid === 'system')
-					{
-						$userConditions[] = ['user_id', null];
-					}
-					else
-					{
-						$userConditions[] = ['user_id', $uid];
-					}
-				}
-
-				if (count($userConditions) > 0)
-				{
-					$finder->whereOr($userConditions);
-				}
+				$finder->whereOr($userConditions);
 			}
 		}
 
@@ -156,20 +129,23 @@ class LogRepository extends Repository
 	 */
 	public function getHighPriorityLogCounts(): ?array
 	{
-		$finder = $this->finder('Sylphian\Library:AddonLog')
-			->where('type', ['emergency', 'critical', 'alert', 'error']);
+		$rows = $this->db()->fetchAll("
+		SELECT addon_id, type, COUNT(*) AS total
+		FROM xf_addon_log
+		WHERE type IN ('emergency', 'alert', 'critical', 'error')
+		GROUP BY addon_id, type
+	");
 
-		if ($finder->total() <= 0)
+		$counts = ['emergency_count' => 0, 'alert_count' => 0, 'critical_count' => 0, 'error_count' => 0];
+		foreach ($rows AS $row)
 		{
-			return null;
+			if (AddonPermissionHandler::canViewAddonLogs(null, $row['addon_id']))
+			{
+				$counts[$row['type'] . '_count'] += $row['total'];
+			}
 		}
 
-		return [
-			'emergency_count' => (clone $finder)->where('type', 'emergency')->total(),
-			'critical_count'  => (clone $finder)->where('type', 'critical')->total(),
-			'alert_count'     => (clone $finder)->where('type', 'alert')->total(),
-			'error_count'     => (clone $finder)->where('type', 'error')->total(),
-		];
+		return array_sum($counts) ? $counts : null;
 	}
 
 
@@ -226,25 +202,14 @@ class LogRepository extends Repository
 				'debug' => $addonCounts[$addonId]['debug_count'],
 			];
 
-			if (isset($addons[$addonId]))
-			{
-				$result[$addonId] = [
-					'addon' => $addons[$addonId],
-					'log_count' => $addonCounts[$addonId]['log_count'],
-					'latest_log_date' => $addonCounts[$addonId]['latest_log_date'],
-					'type_counts' => $typeCounts,
-				];
-			}
-			else
-			{
-				$result[$addonId] = [
-					'addon_id' => $addonId,
-					'addon' => null,
-					'log_count' => $addonCounts[$addonId]['log_count'],
-					'latest_log_date' => $addonCounts[$addonId]['latest_log_date'],
-					'type_counts' => $typeCounts,
-				];
-			}
+			// Entries outlive their add-on, so addon is null for one that has been uninstalled.
+			$result[$addonId] = [
+				'addon_id' => $addonId,
+				'addon' => $addons[$addonId] ?? null,
+				'log_count' => $addonCounts[$addonId]['log_count'],
+				'latest_log_date' => $addonCounts[$addonId]['latest_log_date'],
+				'type_counts' => $typeCounts,
+			];
 		}
 
 		return $result;
@@ -258,40 +223,46 @@ class LogRepository extends Repository
 	 */
 	public function clearLogsForAddon(string $addonId): int
 	{
-		$logCount = $this->finder('Sylphian\Library:AddonLog')
-			->where('addon_id', $addonId)
-			->total();
+		$db = $this->db();
+		$existing = $db->fetchRow('SELECT COUNT(*) AS log_count, MAX(log_id) AS last_log_id FROM xf_addon_log WHERE addon_id = ?', $addonId);
+		$logCount = (int) $existing['log_count'];
+		$lastLogId = (int) $existing['last_log_id'];
 
-		if ($logCount > 0)
+		if (!$logCount)
 		{
-			/** @var AddOn $addon */
-			$addon = \XF::em()->find('XF:AddOn', $addonId);
-			$addonTitle = $addon ? $addon->title : $addonId;
-
-			$payload = [
-				'content' => "Batch deleted {$logCount} logs.",
-				'addon_info' => [
-					'addon_id' => $addonId,
-					'title' => $addonTitle,
-					'version_string' => $addon ? $addon->version_string : '',
-				],
-				'date' => \XF::$time,
-				'date_formatted' => \XF::language()->dateTime(\XF::$time),
-				'log_count' => $logCount,
-				'user_id' => \XF::visitor()->user_id,
-				'user_name' => \XF::visitor()->username,
-			];
-
-			$webhookRepo = $this->repository(WebhookRepository::class);
-			$webhookRepo->queueWebhook(
-				'syl_library_addon_log',
-				\XF::$time,
-				'batch_delete',
-				$payload
-			);
+			return 0;
 		}
 
-		return $this->db()->delete('xf_addon_log', 'addon_id = ?', $addonId);
+		/** @var AddOn $addon */
+		$addon = \XF::em()->find('XF:AddOn', $addonId);
+		$addonTitle = $addon ? $addon->title : $addonId;
+
+		$payload = [
+			'content' => \XF::app()->language(\XF::options()->defaultLanguageId)
+				->renderPhrase('sylphian_library_batch_deleted_x_logs', ['count' => $logCount], 'raw'),
+			'addon_info' => [
+				'addon_id' => $addonId,
+				'title' => $addonTitle,
+				'version_string' => $addon ? $addon->version_string : '',
+			],
+			'date' => \XF::$time,
+			'date_formatted' => \XF::language()->dateTime(\XF::$time),
+			'log_count' => $logCount,
+			'last_log_id' => $lastLogId,
+			'user_id' => \XF::visitor()->user_id,
+			'user_name' => \XF::visitor()->username,
+		];
+
+		$webhookRepo = $this->repository(WebhookRepository::class);
+		$webhookRepo->queueWebhook(
+			'syl_library_addon_log',
+			$lastLogId,
+			'batch_delete',
+			$payload
+		);
+
+		// Keep entries logged since the count so the webhook's count stays exact.
+		return $db->delete('xf_addon_log', 'addon_id = ? AND log_id <= ?', [$addonId, $lastLogId]);
 	}
 
 	/**
@@ -304,14 +275,17 @@ class LogRepository extends Repository
 		return $this->options()->addonLogLength;
 	}
 
+	public function isPruningEnabled(): bool
+	{
+		return $this->getLogLength() !== 0;
+	}
+
 	/**
-	 * Check if addon logging is enabled
-	 *
-	 * @return bool
+	 * @deprecated 1.2.0 Use isPruningEnabled().
 	 */
 	public function isEnabled(): bool
 	{
-		return $this->getLogLength() !== 0;
+		return $this->isPruningEnabled();
 	}
 
 	/**
@@ -332,29 +306,20 @@ class LogRepository extends Repository
 	 */
 	public function pruneLogs(?int $cutOff = null): void
 	{
-		if (!$this->isEnabled())
+		if (!$this->isPruningEnabled())
 		{
 			return;
 		}
 
 		$cutOff = $cutOff ?? $this->getCutOff();
-		$deletedCount = $this->db()->fetchOne('SELECT COUNT(*) FROM xf_addon_log WHERE date < ?', $cutOff);
+		$deleted = $this->db()->delete('xf_addon_log', 'date < ?', $cutOff);
 
-		$this->db()->delete('xf_addon_log', 'date < ?', $cutOff);
-
-		if ($deletedCount > 0)
+		if ($deleted)
 		{
-			$cutOffDate = date('Y-m-d H:i:s', $cutOff);
-
-			Logger::withAddonId('Sylphian/Library')->debug('Add-on logs pruned successfully', [
-				'deleted_records' => $deletedCount,
-				'cutoff_date' => $cutOffDate,
-				'pruned_date' => date('Y-m-d H:i:s'),
+			Logger::withAddonId('Sylphian/Library')->info('Pruned {count} add-on log entries', [
+				'count' => $deleted,
+				'cutoff_date' => date('Y-m-d H:i:s', $cutOff),
 			]);
-		}
-		else
-		{
-			Logger::withAddonId('Sylphian/Library')->debug('No add-on logs needed pruning');
 		}
 	}
 }
