@@ -6,6 +6,7 @@ use XF\AddOn\AbstractSetup;
 use XF\AddOn\StepRunnerInstallTrait;
 use XF\AddOn\StepRunnerUninstallTrait;
 use XF\AddOn\StepRunnerUpgradeTrait;
+use XF\Db\Schema\Alter;
 use XF\Db\Schema\Create;
 
 class Setup extends AbstractSetup
@@ -34,8 +35,19 @@ class Setup extends AbstractSetup
 			$table->addColumn('details', 'blob')->nullable();
 
 			$table->addKey('date');
-			$table->addKey('addon_id');
 			$table->addKey(['addon_id', 'type']);
+			$table->addKey(['addon_id', 'date'], 'addon_id_date');
+			$table->addKey(['type', 'addon_id'], 'type_addon_id');
+		});
+	}
+
+	public function upgrade1020070Step1(): void
+	{
+		$this->schemaManager()->alterTable('xf_addon_log', function (Alter $table)
+		{
+			$table->addKey(['addon_id', 'date'], 'addon_id_date');
+			$table->addKey(['type', 'addon_id'], 'type_addon_id');
+			$table->dropIndexes('addon_id');
 		});
 	}
 
